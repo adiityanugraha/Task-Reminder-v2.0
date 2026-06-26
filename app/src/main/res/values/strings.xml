@@ -1,3 +1,35 @@
 <resources>
     <string name="app_name">Task Reminder 2.0</string>
+
+    <!-- Daftar tugas -->
+    <string name="empty_tasks">Belum ada tugas.\nTekan + untuk menambah.</string>
+    <string name="cd_add_task">Tambah tugas</string>
+
+    <!-- Form tugas -->
+    <string name="title_add_task">Tambah Tugas</string>
+    <string name="title_edit_task">Edit Tugas</string>
+    <string name="hint_title">Judul tugas</string>
+    <string name="hint_description">Deskripsi (opsional)</string>
+    <string name="label_deadline">Deadline</string>
+    <string name="button_pick_deadline">Pilih Deadline</string>
+    <string name="no_deadline">Belum dipilih</string>
+    <string name="label_status">Status</string>
+    <string name="label_priority_high">Prioritas Tinggi</string>
+    <string name="button_save">Simpan</string>
+    <string name="error_title_required">Judul wajib diisi</string>
+
+    <!-- Hapus -->
+    <string name="confirm_delete_title">Hapus tugas?</string>
+    <string name="confirm_delete_message">Tugas ini akan dihapus permanen.</string>
+    <string name="action_delete">Hapus</string>
+    <string name="action_cancel">Batal</string>
+
+    <!-- Tampilan deadline kosong di list -->
+    <string name="list_no_deadline">Tanpa deadline</string>
+
+    <string-array name="status_labels">
+        <item>Belum Mulai</item>
+        <item>Sedang Dikerjakan</item>
+        <item>Selesai</item>
+    </string-array>
 </resources>
