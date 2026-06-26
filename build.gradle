@@ -1,0 +1,4 @@
+// Top-level build file — opsi konfigurasi umum untuk semua sub-project/module.
+plugins {
+    id 'com.android.application' version '8.6.1' apply false
+}

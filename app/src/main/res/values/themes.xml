@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Tema dasar aplikasi (Material Design 3). -->
+    <style name="Theme.TaskReminder2" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Kustomisasi warna ditambahkan belakangan saat layar dibangun. -->
+    </style>
+</resources>
