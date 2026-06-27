@@ -13,13 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.Task;
-import com.example.taskreminder2.util.OverdueChecker;
+import com.example.taskreminder2.ui.TaskViewBinder;
 import com.example.taskreminder2.util.TaskStatus;
 import com.google.android.material.card.MaterialCardView;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * Adapter daftar tugas. Memakai {@link ListAdapter} + {@link DiffUtil}
@@ -34,9 +30,6 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
 
         void onTaskLongClick(Task task);
     }
-
-    private static final SimpleDateFormat DATE_FORMAT =
-            new SimpleDateFormat("dd MMM yyyy, HH:mm", new Locale("id", "ID"));
 
     private final OnTaskInteractionListener listener;
 
@@ -116,31 +109,13 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
         void bind(Task task) {
             textTitle.setText(task.title);
 
-            // Fitur-08: status terlambat dihitung di sini (read-only, tanpa
-            // menulis DB). Tugas tanpa deadline tidak pernah terlambat.
-            boolean overdue = OverdueChecker.isOverdue(task.deadline, task.status);
-            if (task.deadline > 0) {
-                String formatted = DATE_FORMAT.format(new Date(task.deadline));
-                if (overdue) {
-                    String label = itemView.getContext().getString(R.string.label_overdue);
-                    textDeadline.setText(formatted + "  •  " + label);
-                    textDeadline.setTextColor(
-                            ContextCompat.getColor(itemView.getContext(), R.color.overdue));
-                } else {
-                    textDeadline.setText(formatted);
-                    textDeadline.setTextColor(defaultDeadlineColor);
-                }
-            } else {
-                textDeadline.setText(R.string.list_no_deadline);
-                textDeadline.setTextColor(defaultDeadlineColor);
-            }
-            String[] labels = itemView.getContext().getResources()
-                    .getStringArray(R.array.status_labels);
-            int statusIdx = TaskStatus.indexOf(task.status);
-            textStatus.setText(statusIdx >= 0 ? labels[statusIdx] : task.status);
+            // Fitur-08: status terlambat dihitung saat render (read-only).
+            TaskViewBinder.bindDeadline(textDeadline, task, defaultDeadlineColor);
 
-            // Fitur-06: penanda visual prioritas tinggi (priority == 1).
-            if (task.priority == 1) {
+            textStatus.setText(TaskStatus.label(task.status));
+
+            // Fitur-06: penanda visual prioritas tinggi.
+            if (task.priority == Task.PRIORITY_HIGH) {
                 textPriorityBadge.setVisibility(View.VISIBLE);
                 int color = ContextCompat.getColor(itemView.getContext(), R.color.priority_high);
                 float density = itemView.getResources().getDisplayMetrics().density;

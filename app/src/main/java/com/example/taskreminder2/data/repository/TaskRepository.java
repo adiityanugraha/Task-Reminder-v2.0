@@ -111,7 +111,8 @@ public class TaskRepository {
             changes.add("status diubah menjadi " + TaskStatus.label(after.status));
         }
         if (before.priority != after.priority) {
-            changes.add("prioritas diubah menjadi " + (after.priority == 1 ? "Tinggi" : "Normal"));
+            changes.add("prioritas diubah menjadi "
+                    + (after.priority == Task.PRIORITY_HIGH ? "Tinggi" : "Normal"));
         }
         if (changes.isEmpty()) {
             return "Tugas diperbarui";

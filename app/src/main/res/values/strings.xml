@@ -48,10 +48,4 @@
     <string name="list_no_deadline">Tanpa deadline</string>
     <!-- Penanda terlambat (Fitur-08) -->
     <string name="label_overdue">Terlambat</string>
-
-    <string-array name="status_labels">
-        <item>Belum Mulai</item>
-        <item>Sedang Dikerjakan</item>
-        <item>Selesai</item>
-    </string-array>
 </resources>

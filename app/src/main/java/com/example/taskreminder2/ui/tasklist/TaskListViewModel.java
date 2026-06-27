@@ -45,7 +45,7 @@ public class TaskListViewModel extends ViewModel {
             }
             switch (q.filter) {
                 case PRIORITY_HIGH:
-                    return repository.filterByPriority(1);
+                    return repository.filterByPriority(Task.PRIORITY_HIGH);
                 case OVERDUE:
                     return repository.filterOverdue(System.currentTimeMillis());
                 case ALL:

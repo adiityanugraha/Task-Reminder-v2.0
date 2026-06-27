@@ -12,11 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.TaskLog;
+import com.example.taskreminder2.util.DateTimeFormatter;
 import com.example.taskreminder2.util.LogType;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * Adapter daftar riwayat (Fitur-02 ACTIVITY & Fitur-05 NOTE), urut terbaru
@@ -24,9 +21,6 @@ import java.util.Locale;
  * catatan manual mudah dibedakan.
  */
 public class TaskLogAdapter extends ListAdapter<TaskLog, TaskLogAdapter.LogViewHolder> {
-
-    private static final SimpleDateFormat TIME_FORMAT =
-            new SimpleDateFormat("dd MMM yyyy, HH:mm", new Locale("id", "ID"));
 
     public TaskLogAdapter() {
         super(DIFF_CALLBACK);
@@ -81,7 +75,7 @@ public class TaskLogAdapter extends ListAdapter<TaskLog, TaskLogAdapter.LogViewH
                     ? R.string.log_type_note : R.string.log_type_activity;
             textLogType.setText(typeRes);
             textLogContent.setText(log.content);
-            textLogTime.setText(TIME_FORMAT.format(new Date(log.createdAt)));
+            textLogTime.setText(DateTimeFormatter.formatDateTime(log.createdAt));
         }
     }
 }

@@ -14,6 +14,10 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "tasks")
 public class Task {
 
+    /** Nilai untuk field {@link #priority} (Fitur-06). */
+    public static final int PRIORITY_NORMAL = 0;
+    public static final int PRIORITY_HIGH = 1;
+
     @PrimaryKey(autoGenerate = true)
     public int id;
 

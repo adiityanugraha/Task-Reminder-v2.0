@@ -37,6 +37,15 @@ public final class TaskStatus {
         return value;
     }
 
+    /** Label semua status sesuai urutan {@link #VALUES} (untuk spinner). */
+    public static String[] labels() {
+        String[] out = new String[VALUES.length];
+        for (int i = 0; i < VALUES.length; i++) {
+            out[i] = label(VALUES[i]);
+        }
+        return out;
+    }
+
     private TaskStatus() {
     }
 }

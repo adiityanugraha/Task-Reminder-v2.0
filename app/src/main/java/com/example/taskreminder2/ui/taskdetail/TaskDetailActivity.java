@@ -13,23 +13,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.Task;
+import com.example.taskreminder2.ui.TaskViewBinder;
 import com.example.taskreminder2.ui.tasklist.TaskFormActivity;
-import com.example.taskreminder2.util.OverdueChecker;
 import com.example.taskreminder2.util.TaskStatus;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * Layar detail tugas: menampilkan info tugas + section "Riwayat Aktivitas"
@@ -39,9 +34,6 @@ import java.util.Locale;
 public class TaskDetailActivity extends AppCompatActivity {
 
     public static final String EXTRA_TASK_ID = "extra_task_id";
-
-    private static final SimpleDateFormat DATE_FORMAT =
-            new SimpleDateFormat("dd MMM yyyy, HH:mm", new Locale("id", "ID"));
 
     /** Membuka detail untuk sebuah taskId. */
     public static void start(Context context, int taskId) {
@@ -115,23 +107,12 @@ public class TaskDetailActivity extends AppCompatActivity {
         setTitle(task.title);
         textTitle.setText(task.title);
 
-        textPriority.setVisibility(task.priority == 1 ? TextView.VISIBLE : TextView.GONE);
+        textPriority.setVisibility(task.priority == Task.PRIORITY_HIGH
+                ? TextView.VISIBLE : TextView.GONE);
 
         textStatus.setText(getString(R.string.detail_status, TaskStatus.label(task.status)));
 
-        if (task.deadline > 0) {
-            String formatted = DATE_FORMAT.format(new Date(task.deadline));
-            if (OverdueChecker.isOverdue(task.deadline, task.status)) {
-                textDeadline.setText(formatted + "  •  " + getString(R.string.label_overdue));
-                textDeadline.setTextColor(ContextCompat.getColor(this, R.color.overdue));
-            } else {
-                textDeadline.setText(formatted);
-                textDeadline.setTextColor(defaultDeadlineColor);
-            }
-        } else {
-            textDeadline.setText(R.string.list_no_deadline);
-            textDeadline.setTextColor(defaultDeadlineColor);
-        }
+        TaskViewBinder.bindDeadline(textDeadline, task, defaultDeadlineColor);
 
         if (task.description == null || task.description.trim().isEmpty()) {
             textDescription.setText(R.string.detail_no_description);

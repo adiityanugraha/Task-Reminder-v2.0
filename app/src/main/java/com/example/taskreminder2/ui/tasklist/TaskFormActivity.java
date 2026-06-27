@@ -14,16 +14,14 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.Task;
+import com.example.taskreminder2.util.DateTimeFormatter;
 import com.example.taskreminder2.util.TaskStatus;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * Form tambah/edit tugas (Fitur-01). Mode ditentukan dari ada-tidaknya
@@ -41,9 +39,6 @@ public class TaskFormActivity extends AppCompatActivity {
     private static final String EXTRA_COURSE_ID = "extra_course_id";
     private static final String EXTRA_STATUS = "extra_status";
     private static final String EXTRA_PRIORITY = "extra_priority";
-
-    private static final SimpleDateFormat DATE_FORMAT =
-            new SimpleDateFormat("dd MMM yyyy, HH:mm", new Locale("id", "ID"));
 
     /** Mengisi Intent dengan data sebuah Task untuk dibuka dalam mode edit. */
     public static void putTaskExtras(Intent intent, Task task) {
@@ -87,8 +82,9 @@ public class TaskFormActivity extends AppCompatActivity {
         MaterialButton buttonPickDeadline = findViewById(R.id.buttonPickDeadline);
         MaterialButton buttonSave = findViewById(R.id.buttonSave);
 
-        ArrayAdapter<CharSequence> statusAdapter = ArrayAdapter.createFromResource(
-                this, R.array.status_labels, android.R.layout.simple_spinner_item);
+        // Label status dari satu sumber kebenaran (TaskStatus), bukan string-array.
+        ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, TaskStatus.labels());
         statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerStatus.setAdapter(statusAdapter);
 
@@ -114,7 +110,8 @@ public class TaskFormActivity extends AppCompatActivity {
         courseId = intent.getIntExtra(EXTRA_COURSE_ID, 0);
         editTitle.setText(intent.getStringExtra(EXTRA_TITLE));
         editDescription.setText(intent.getStringExtra(EXTRA_DESCRIPTION));
-        switchPriority.setChecked(intent.getIntExtra(EXTRA_PRIORITY, 0) == 1);
+        switchPriority.setChecked(
+                intent.getIntExtra(EXTRA_PRIORITY, Task.PRIORITY_NORMAL) == Task.PRIORITY_HIGH);
 
         int statusIdx = TaskStatus.indexOf(intent.getStringExtra(EXTRA_STATUS));
         spinnerStatus.setSelection(statusIdx >= 0 ? statusIdx : 0);
@@ -146,7 +143,7 @@ public class TaskFormActivity extends AppCompatActivity {
 
     private void refreshDeadlineLabel() {
         if (selectedDeadline > 0) {
-            textSelectedDeadline.setText(DATE_FORMAT.format(new Date(selectedDeadline)));
+            textSelectedDeadline.setText(DateTimeFormatter.formatDateTime(selectedDeadline));
         } else {
             textSelectedDeadline.setText(R.string.no_deadline);
         }
@@ -168,7 +165,7 @@ public class TaskFormActivity extends AppCompatActivity {
         task.deadline = selectedDeadline;
         task.courseId = courseId;
         task.status = TaskStatus.VALUES[spinnerStatus.getSelectedItemPosition()];
-        task.priority = switchPriority.isChecked() ? 1 : 0;
+        task.priority = switchPriority.isChecked() ? Task.PRIORITY_HIGH : Task.PRIORITY_NORMAL;
         task.updatedAt = System.currentTimeMillis();
 
         if (editingId > 0) {
