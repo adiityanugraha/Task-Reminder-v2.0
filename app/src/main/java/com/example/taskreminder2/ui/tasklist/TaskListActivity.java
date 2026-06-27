@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.Task;
+import com.example.taskreminder2.ui.taskdetail.TaskDetailActivity;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -59,9 +60,8 @@ public class TaskListActivity extends AppCompatActivity
 
     @Override
     public void onTaskClick(Task task) {
-        Intent intent = new Intent(this, TaskFormActivity.class);
-        TaskFormActivity.putTaskExtras(intent, task);
-        startActivity(intent);
+        // Klik membuka layar detail (info + riwayat). Edit diakses dari sana.
+        TaskDetailActivity.start(this, task.id);
     }
 
     @Override

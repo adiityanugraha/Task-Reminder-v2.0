@@ -18,6 +18,15 @@
     <string name="button_save">Simpan</string>
     <string name="error_title_required">Judul wajib diisi</string>
 
+    <!-- Detail tugas & riwayat -->
+    <string name="action_edit">Edit</string>
+    <string name="heading_history">Riwayat Aktivitas</string>
+    <string name="logs_empty">Belum ada riwayat.</string>
+    <string name="detail_status">Status: %1$s</string>
+    <string name="detail_no_description">(Tanpa deskripsi)</string>
+    <string name="log_type_activity">Aktivitas</string>
+    <string name="log_type_note">Catatan</string>
+
     <!-- Hapus -->
     <string name="confirm_delete_title">Hapus tugas?</string>
     <string name="confirm_delete_message">Tugas ini akan dihapus permanen.</string>

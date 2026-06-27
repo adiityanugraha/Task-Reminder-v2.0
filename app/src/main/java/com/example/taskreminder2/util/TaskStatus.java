@@ -25,6 +25,18 @@ public final class TaskStatus {
         return -1;
     }
 
+    /**
+     * Label ramah-pengguna untuk dipakai pada teks log (Fitur-02), tanpa
+     * butuh Context/resources sehingga Repository tetap mudah ditest. Untuk
+     * UI (spinner/list) sumber label tetap {@code R.array.status_labels}.
+     */
+    public static String label(String value) {
+        if (NOT_STARTED.equals(value)) return "Belum Mulai";
+        if (IN_PROGRESS.equals(value)) return "Sedang Dikerjakan";
+        if (DONE.equals(value)) return "Selesai";
+        return value;
+    }
+
     private TaskStatus() {
     }
 }

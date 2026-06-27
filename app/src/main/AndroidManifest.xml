@@ -18,6 +18,11 @@
         </activity>
 
         <activity
+            android:name=".ui.taskdetail.TaskDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.tasklist.TaskListActivity" />
+
+        <activity
             android:name=".ui.tasklist.TaskFormActivity"
             android:exported="false"
             android:parentActivityName=".ui.tasklist.TaskListActivity" />

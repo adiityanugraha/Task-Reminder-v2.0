@@ -7,7 +7,9 @@ import androidx.lifecycle.LiveData;
 import com.example.taskreminder2.data.local.AppDatabase;
 import com.example.taskreminder2.data.local.dao.TaskDao;
 import com.example.taskreminder2.data.local.entity.Task;
+import com.example.taskreminder2.util.TaskStatus;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,30 +18,31 @@ import java.util.concurrent.Executors;
  * Satu-satunya jalur resmi akses data Task (Personal Mode).
  *
  * <p>Operasi tulis (insert/update/delete) dijalankan di background thread
- * lewat {@link ExecutorService} — Room melarang operasi blocking di main
- * thread. Operasi baca diekspos sebagai {@link LiveData}, yang Room update
- * otomatis di thread yang benar.</p>
- *
- * <p>ViewModel adalah satu-satunya yang boleh memanggil Repository; Activity
- * tidak pernah menyentuh kelas ini langsung.</p>
+ * lewat {@link ExecutorService}. Setiap insert/update juga mencatat baris
+ * riwayat lewat {@link TaskLogRepository} (Fitur-02) — pemanggilan ini berada
+ * di SATU layer yang jelas (Repository), bukan tersebar seperti Singleton
+ * lama yang saling memanggil tersembunyi.</p>
  */
 public class TaskRepository {
 
-    /** Pool background bersama untuk semua operasi tulis DB Personal Mode. */
     private static final ExecutorService SHARED_IO = Executors.newFixedThreadPool(4);
 
     private final TaskDao taskDao;
+    private final TaskLogRepository logRepository;
     private final ExecutorService io;
     private final LiveData<List<Task>> allTasks;
 
     /** Dipakai produksi: bangun dari Application context. */
     public TaskRepository(Application application) {
-        this(AppDatabase.getInstance(application).taskDao(), SHARED_IO);
+        this(AppDatabase.getInstance(application).taskDao(),
+                new TaskLogRepository(application),
+                SHARED_IO);
     }
 
-    /** Dipakai unit test: injeksi DAO (mock) & executor (mis. sinkron). */
-    public TaskRepository(TaskDao taskDao, ExecutorService io) {
+    /** Dipakai unit test: injeksi DAO (mock), log repo (mock) & executor. */
+    public TaskRepository(TaskDao taskDao, TaskLogRepository logRepository, ExecutorService io) {
         this.taskDao = taskDao;
+        this.logRepository = logRepository;
         this.io = io;
         this.allTasks = taskDao.getAllTasks();
     }
@@ -48,15 +51,70 @@ public class TaskRepository {
         return allTasks;
     }
 
+    public LiveData<Task> getTaskById(int id) {
+        return taskDao.getById(id);
+    }
+
     public void insert(Task task) {
-        io.execute(() -> taskDao.insert(task));
+        io.execute(() -> {
+            long id = taskDao.insert(task);
+            logRepository.logActivity((int) id, "Tugas dibuat");
+        });
     }
 
     public void update(Task task) {
-        io.execute(() -> taskDao.update(task));
+        io.execute(() -> {
+            Task before = taskDao.getByIdSync(task.id);
+            taskDao.update(task);
+            logRepository.logActivity(task.id, buildUpdateLog(before, task));
+        });
     }
 
     public void delete(Task task) {
+        // Tidak perlu log: log milik task ikut terhapus via ON DELETE CASCADE.
         io.execute(() -> taskDao.delete(task));
+    }
+
+    /**
+     * Menyusun pesan log perubahan berdasarkan beda field lama vs baru.
+     * Murni Java (tanpa dependency Android) agar mudah di-unit-test.
+     */
+    static String buildUpdateLog(Task before, Task after) {
+        if (before == null) {
+            return "Tugas diperbarui";
+        }
+        List<String> changes = new ArrayList<>();
+        if (!textEquals(before.title, after.title)) {
+            changes.add("judul diubah");
+        }
+        if (!textEquals(before.description, after.description)) {
+            changes.add("deskripsi diubah");
+        }
+        if (before.deadline != after.deadline) {
+            changes.add("deadline diubah");
+        }
+        if (!textEquals(before.status, after.status)) {
+            changes.add("status diubah menjadi " + TaskStatus.label(after.status));
+        }
+        if (before.priority != after.priority) {
+            changes.add("prioritas diubah menjadi " + (after.priority == 1 ? "Tinggi" : "Normal"));
+        }
+        if (changes.isEmpty()) {
+            return "Tugas diperbarui";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < changes.size(); i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(changes.get(i));
+        }
+        // Kapitalkan huruf pertama.
+        sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
+        return sb.toString();
+    }
+
+    private static boolean textEquals(String a, String b) {
+        return a == null ? b == null : a.equals(b);
     }
 }

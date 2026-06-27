@@ -32,4 +32,13 @@ public interface TaskDao {
 
     @Query("SELECT * FROM tasks ORDER BY deadline ASC")
     LiveData<List<Task>> getAllTasks();
+
+    /** Reaktif: dipakai layar detail agar otomatis refresh setelah edit. */
+    @Query("SELECT * FROM tasks WHERE id = :id")
+    LiveData<Task> getById(int id);
+
+    /** Non-LiveData: dipanggil dari background untuk membandingkan nilai
+     *  lama vs baru saat membuat log perubahan (Fitur-02). */
+    @Query("SELECT * FROM tasks WHERE id = :id")
+    Task getByIdSync(int id);
 }
