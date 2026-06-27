@@ -26,6 +26,10 @@
     <string name="detail_no_description">(Tanpa deskripsi)</string>
     <string name="log_type_activity">Aktivitas</string>
     <string name="log_type_note">Catatan</string>
+    <string name="hint_note">Tulis catatan…</string>
+    <string name="button_add_note">Tambah Catatan</string>
+    <string name="error_note_empty">Catatan tidak boleh kosong</string>
+    <string name="note_added">Catatan ditambahkan</string>
 
     <!-- Hapus -->
     <string name="confirm_delete_title">Hapus tugas?</string>

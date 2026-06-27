@@ -19,6 +19,7 @@ public class TaskDetailViewModel extends ViewModel {
 
     private final TaskRepository taskRepository;
     private final TaskLogRepository logRepository;
+    private final int taskId;
     private final LiveData<Task> task;
     private final LiveData<List<TaskLog>> logs;
 
@@ -27,6 +28,7 @@ public class TaskDetailViewModel extends ViewModel {
                                int taskId) {
         this.taskRepository = taskRepository;
         this.logRepository = logRepository;
+        this.taskId = taskId;
         this.task = taskRepository.getTaskById(taskId);
         this.logs = logRepository.getLogsForTask(taskId);
     }
@@ -41,5 +43,10 @@ public class TaskDetailViewModel extends ViewModel {
 
     public void delete(Task task) {
         taskRepository.delete(task);
+    }
+
+    /** Fitur-05: tambah catatan manual (logType NOTE) untuk tugas ini. */
+    public void addNote(String content) {
+        logRepository.insertNote(taskId, content);
     }
 }

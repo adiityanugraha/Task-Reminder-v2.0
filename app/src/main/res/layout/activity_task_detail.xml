@@ -81,6 +81,31 @@
                 android:text="@string/heading_history"
                 android:textAppearance="?attr/textAppearanceTitleMedium" />
 
+            <!-- Fitur-05: input catatan manual -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputLayoutNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="@string/hint_note">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editNote"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine|textCapSentences"
+                    android:maxLines="4" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonAddNote"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="4dp"
+                android:text="@string/button_add_note" />
+
             <TextView
                 android:id="@+id/textLogsEmpty"
                 android:layout_width="match_parent"

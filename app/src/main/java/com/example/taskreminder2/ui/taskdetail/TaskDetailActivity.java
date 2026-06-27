@@ -3,9 +3,12 @@ package com.example.taskreminder2.ui.taskdetail;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -21,6 +24,8 @@ import com.example.taskreminder2.ui.tasklist.TaskFormActivity;
 import com.example.taskreminder2.util.OverdueChecker;
 import com.example.taskreminder2.util.TaskStatus;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -80,6 +85,10 @@ public class TaskDetailActivity extends AppCompatActivity {
         TaskLogAdapter logAdapter = new TaskLogAdapter();
         recyclerLogs.setAdapter(logAdapter);
 
+        TextInputEditText editNote = findViewById(R.id.editNote);
+        MaterialButton buttonAddNote = findViewById(R.id.buttonAddNote);
+        buttonAddNote.setOnClickListener(v -> addNote(editNote));
+
         int taskId = getIntent().getIntExtra(EXTRA_TASK_ID, 0);
         viewModel = new ViewModelProvider(
                 this, new TaskDetailViewModelFactory(getApplication(), taskId))
@@ -129,6 +138,23 @@ public class TaskDetailActivity extends AppCompatActivity {
         } else {
             textDescription.setText(task.description);
         }
+    }
+
+    private void addNote(TextInputEditText editNote) {
+        String content = editNote.getText() == null ? "" : editNote.getText().toString().trim();
+        if (TextUtils.isEmpty(content)) {
+            editNote.setError(getString(R.string.error_note_empty));
+            return;
+        }
+        viewModel.addNote(content);
+        editNote.setText("");
+        editNote.clearFocus();
+        // Sembunyikan keyboard.
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(editNote.getWindowToken(), 0);
+        }
+        Toast.makeText(this, R.string.note_added, Toast.LENGTH_SHORT).show();
     }
 
     @Override
