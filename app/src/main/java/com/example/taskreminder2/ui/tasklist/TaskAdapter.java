@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.Task;
 import com.example.taskreminder2.util.TaskStatus;
+import com.google.android.material.card.MaterialCardView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -77,15 +79,19 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
     }
 
     class TaskViewHolder extends RecyclerView.ViewHolder {
+        private final MaterialCardView card;
         private final TextView textTitle;
         private final TextView textDeadline;
         private final TextView textStatus;
+        private final TextView textPriorityBadge;
 
         TaskViewHolder(@NonNull View itemView) {
             super(itemView);
+            card = (MaterialCardView) itemView;
             textTitle = itemView.findViewById(R.id.textTitle);
             textDeadline = itemView.findViewById(R.id.textDeadline);
             textStatus = itemView.findViewById(R.id.textStatus);
+            textPriorityBadge = itemView.findViewById(R.id.textPriorityBadge);
 
             itemView.setOnClickListener(v -> {
                 int pos = getBindingAdapterPosition();
@@ -114,6 +120,18 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
                     .getStringArray(R.array.status_labels);
             int statusIdx = TaskStatus.indexOf(task.status);
             textStatus.setText(statusIdx >= 0 ? labels[statusIdx] : task.status);
+
+            // Fitur-06: penanda visual prioritas tinggi (priority == 1).
+            if (task.priority == 1) {
+                textPriorityBadge.setVisibility(View.VISIBLE);
+                int color = ContextCompat.getColor(itemView.getContext(), R.color.priority_high);
+                float density = itemView.getResources().getDisplayMetrics().density;
+                card.setStrokeColor(color);
+                card.setStrokeWidth((int) (1.5f * density));
+            } else {
+                textPriorityBadge.setVisibility(View.GONE);
+                card.setStrokeWidth(0);
+            }
         }
     }
 }

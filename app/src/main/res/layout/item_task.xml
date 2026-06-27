@@ -2,6 +2,8 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardTask"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="12dp"
@@ -15,13 +17,35 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/textTitle"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
-            tools:text="Mengerjakan laporan akhir"
-            xmlns:tools="http://schemas.android.com/tools" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                tools:text="Mengerjakan laporan akhir" />
+
+            <TextView
+                android:id="@+id/textPriorityBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_priority_badge"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:text="@string/label_priority_high"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="@android:color/white"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/textDeadline"
