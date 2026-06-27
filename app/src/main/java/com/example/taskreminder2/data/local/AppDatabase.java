@@ -8,8 +8,10 @@ import androidx.room.RoomDatabase;
 
 import com.example.taskreminder2.data.local.dao.CourseDao;
 import com.example.taskreminder2.data.local.dao.TaskDao;
+import com.example.taskreminder2.data.local.dao.TaskLogDao;
 import com.example.taskreminder2.data.local.entity.Course;
 import com.example.taskreminder2.data.local.entity.Task;
+import com.example.taskreminder2.data.local.entity.TaskLog;
 
 /**
  * Database Room aplikasi (Personal Mode).
@@ -19,14 +21,18 @@ import com.example.taskreminder2.data.local.entity.Task;
  * diset lewat {@code room.schemaLocation} di build.gradle) untuk validasi
  * Migration di masa depan.</p>
  *
- * <p>Entity {@code TaskLog} ditambahkan pada Day 8 (akan menaikkan version).</p>
+ * <p>version 2 (Day 8): menambah Entity {@code TaskLog}. Selama pra-rilis
+ * perubahan skema memakai {@code fallbackToDestructiveMigration} — data lama
+ * di-reset saat version naik (aman karena belum ada user/data nyata).</p>
  */
-@Database(entities = {Task.class, Course.class}, version = 1, exportSchema = true)
+@Database(entities = {Task.class, Course.class, TaskLog.class}, version = 2, exportSchema = true)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract TaskDao taskDao();
 
     public abstract CourseDao courseDao();
+
+    public abstract TaskLogDao taskLogDao();
 
     private static final String DB_NAME = "task_reminder.db";
 
