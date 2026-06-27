@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.Task;
+import com.example.taskreminder2.util.OverdueChecker;
 import com.example.taskreminder2.util.TaskStatus;
 import com.google.android.material.card.MaterialCardView;
 
@@ -84,6 +85,7 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
         private final TextView textDeadline;
         private final TextView textStatus;
         private final TextView textPriorityBadge;
+        private final int defaultDeadlineColor;
 
         TaskViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -92,6 +94,8 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
             textDeadline = itemView.findViewById(R.id.textDeadline);
             textStatus = itemView.findViewById(R.id.textStatus);
             textPriorityBadge = itemView.findViewById(R.id.textPriorityBadge);
+            // Simpan warna asli untuk dipulihkan saat tugas tidak terlambat.
+            defaultDeadlineColor = textDeadline.getCurrentTextColor();
 
             itemView.setOnClickListener(v -> {
                 int pos = getBindingAdapterPosition();
@@ -111,10 +115,24 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
 
         void bind(Task task) {
             textTitle.setText(task.title);
+
+            // Fitur-08: status terlambat dihitung di sini (read-only, tanpa
+            // menulis DB). Tugas tanpa deadline tidak pernah terlambat.
+            boolean overdue = OverdueChecker.isOverdue(task.deadline, task.status);
             if (task.deadline > 0) {
-                textDeadline.setText(DATE_FORMAT.format(new Date(task.deadline)));
+                String formatted = DATE_FORMAT.format(new Date(task.deadline));
+                if (overdue) {
+                    String label = itemView.getContext().getString(R.string.label_overdue);
+                    textDeadline.setText(formatted + "  •  " + label);
+                    textDeadline.setTextColor(
+                            ContextCompat.getColor(itemView.getContext(), R.color.overdue));
+                } else {
+                    textDeadline.setText(formatted);
+                    textDeadline.setTextColor(defaultDeadlineColor);
+                }
             } else {
                 textDeadline.setText(R.string.list_no_deadline);
+                textDeadline.setTextColor(defaultDeadlineColor);
             }
             String[] labels = itemView.getContext().getResources()
                     .getStringArray(R.array.status_labels);
