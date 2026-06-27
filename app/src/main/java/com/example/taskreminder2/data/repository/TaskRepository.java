@@ -55,6 +55,20 @@ public class TaskRepository {
         return taskDao.getById(id);
     }
 
+    // --- Fitur-03: pencarian & filter (passthrough ke DAO) ---
+
+    public LiveData<List<Task>> searchByTitle(String keyword) {
+        return taskDao.searchByTitle(keyword);
+    }
+
+    public LiveData<List<Task>> filterByPriority(int priority) {
+        return taskDao.filterByPriority(priority);
+    }
+
+    public LiveData<List<Task>> filterOverdue(long now) {
+        return taskDao.filterOverdue(now);
+    }
+
     public void insert(Task task) {
         io.execute(() -> {
             long id = taskDao.insert(task);

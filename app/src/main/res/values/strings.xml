@@ -3,7 +3,14 @@
 
     <!-- Daftar tugas -->
     <string name="empty_tasks">Belum ada tugas.\nTekan + untuk menambah.</string>
+    <string name="empty_filtered">Tidak ada tugas yang cocok.</string>
     <string name="cd_add_task">Tambah tugas</string>
+
+    <!-- Pencarian & filter (Fitur-03) -->
+    <string name="hint_search">Cari judul tugas…</string>
+    <string name="filter_all">Semua</string>
+    <string name="filter_priority">Prioritas Tinggi</string>
+    <string name="filter_overdue">Terlambat</string>
 
     <!-- Form tugas -->
     <string name="title_add_task">Tambah Tugas</string>

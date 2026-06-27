@@ -33,6 +33,21 @@ public interface TaskDao {
     @Query("SELECT * FROM tasks ORDER BY deadline ASC")
     LiveData<List<Task>> getAllTasks();
 
+    // --- Fitur-03: pencarian & filter ---
+
+    @Query("SELECT * FROM tasks WHERE title LIKE '%' || :keyword || '%' ORDER BY deadline ASC")
+    LiveData<List<Task>> searchByTitle(String keyword);
+
+    @Query("SELECT * FROM tasks WHERE priority = :priority ORDER BY deadline ASC")
+    LiveData<List<Task>> filterByPriority(int priority);
+
+    @Query("SELECT * FROM tasks WHERE courseId = :courseId ORDER BY deadline ASC")
+    LiveData<List<Task>> filterByCourse(int courseId);
+
+    // Konsisten dengan OverdueChecker: tugas tanpa deadline (0) tidak terlambat.
+    @Query("SELECT * FROM tasks WHERE deadline > 0 AND deadline < :now AND status != 'SELESAI' ORDER BY deadline ASC")
+    LiveData<List<Task>> filterOverdue(long now);
+
     /** Reaktif: dipakai layar detail agar otomatis refresh setelah edit. */
     @Query("SELECT * FROM tasks WHERE id = :id")
     LiveData<Task> getById(int id);

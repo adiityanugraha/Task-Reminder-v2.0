@@ -2,6 +2,9 @@ package com.example.taskreminder2.ui.tasklist;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -14,20 +17,22 @@ import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.Task;
 import com.example.taskreminder2.ui.taskdetail.TaskDetailActivity;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import android.widget.TextView;
+import com.google.android.material.textfield.TextInputEditText;
 
 /**
- * Layar utama (launcher): daftar tugas Personal Mode.
- *
- * <p>Hanya bicara ke {@link TaskListViewModel} — mengamati {@code LiveData},
- * tidak pernah menyentuh Repository/DAO langsung. Fitur-01.</p>
+ * Layar utama (launcher): daftar tugas Personal Mode dengan pencarian &
+ * filter (Fitur-03). Hanya bicara ke {@link TaskListViewModel}.
  */
 public class TaskListActivity extends AppCompatActivity
         implements TaskAdapter.OnTaskInteractionListener {
 
     private TaskListViewModel viewModel;
+    private TextInputEditText editSearch;
+    private ChipGroup chipGroup;
+    private TextView textEmpty;
+    private boolean filtering;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +43,9 @@ public class TaskListActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         RecyclerView recycler = findViewById(R.id.recyclerTasks);
-        TextView textEmpty = findViewById(R.id.textEmpty);
+        textEmpty = findViewById(R.id.textEmpty);
+        editSearch = findViewById(R.id.editSearch);
+        chipGroup = findViewById(R.id.chipGroupFilter);
         FloatingActionButton fabAdd = findViewById(R.id.fabAdd);
 
         recycler.setLayoutManager(new LinearLayoutManager(this));
@@ -49,13 +56,50 @@ public class TaskListActivity extends AppCompatActivity
                 this, new TaskListViewModelFactory(getApplication()))
                 .get(TaskListViewModel.class);
 
-        viewModel.getAllTasks().observe(this, tasks -> {
+        viewModel.getTasks().observe(this, tasks -> {
             adapter.submitList(tasks);
-            textEmpty.setVisibility(tasks == null || tasks.isEmpty() ? TextView.VISIBLE : TextView.GONE);
+            boolean empty = tasks == null || tasks.isEmpty();
+            textEmpty.setText(filtering ? R.string.empty_filtered : R.string.empty_tasks);
+            textEmpty.setVisibility(empty ? TextView.VISIBLE : TextView.GONE);
         });
+
+        editSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                applyQuery();
+            }
+        });
+
+        chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> applyQuery());
 
         fabAdd.setOnClickListener(v ->
                 startActivity(new Intent(this, TaskFormActivity.class)));
+    }
+
+    /** Menyusun kriteria dari search box + chip terpilih, kirim ke ViewModel. */
+    private void applyQuery() {
+        String keyword = editSearch.getText() == null ? "" : editSearch.getText().toString().trim();
+
+        TaskListViewModel.Filter filter;
+        int checked = chipGroup.getCheckedChipId();
+        if (checked == R.id.chipPriority) {
+            filter = TaskListViewModel.Filter.PRIORITY_HIGH;
+        } else if (checked == R.id.chipOverdue) {
+            filter = TaskListViewModel.Filter.OVERDUE;
+        } else {
+            filter = TaskListViewModel.Filter.ALL;
+        }
+
+        filtering = !keyword.isEmpty() || filter != TaskListViewModel.Filter.ALL;
+        viewModel.setQuery(filter, keyword);
     }
 
     @Override
