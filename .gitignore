@@ -10,3 +10,5 @@
 .cxx
 local.properties
 /app/build
+# Konfigurasi Firebase spesifik project (berisi API key client)
+/app/google-services.json

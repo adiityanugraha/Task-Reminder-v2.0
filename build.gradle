@@ -1,4 +1,6 @@
 // Top-level build file — opsi konfigurasi umum untuk semua sub-project/module.
 plugins {
     id 'com.android.application' version '8.6.1' apply false
+    // Memproses google-services.json untuk Firebase (Team Mode). Spark/gratis.
+    id 'com.google.gms.google-services' version '4.4.2' apply false
 }
