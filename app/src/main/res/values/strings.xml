@@ -65,6 +65,21 @@
     <string name="error_email_required">Email wajib diisi</string>
     <string name="error_password_short">Password minimal 6 karakter</string>
     <string name="error_name_required">Nama tampilan wajib diisi</string>
-    <string name="team_logged_in_as">Masuk sebagai:\n%1$s</string>
-    <string name="team_placeholder">Buat atau gabung team akan tersedia berikutnya (Day 16).</string>
+    <string name="team_logged_in_as">Masuk sebagai: %1$s</string>
+
+    <!-- Team Mode: buat/join team (Fitur-04, Day 16) -->
+    <string name="button_create_team">Buat Team</string>
+    <string name="button_join_team">Join Team</string>
+    <string name="heading_your_teams">Team kamu</string>
+    <string name="empty_teams">Belum ada team.\nBuat baru atau gabung lewat kode.</string>
+    <string name="dialog_create_team_title">Buat Team Baru</string>
+    <string name="dialog_join_team_title">Gabung Team</string>
+    <string name="hint_team_name">Nama team</string>
+    <string name="hint_invite_code">Kode undang</string>
+    <string name="action_create">Buat</string>
+    <string name="action_join">Gabung</string>
+    <string name="error_team_name_required">Nama team wajib diisi</string>
+    <string name="error_code_required">Kode wajib diisi</string>
+    <string name="team_code_label">Kode: %1$s</string>
+    <string name="team_tasks_soon">Tugas team akan tersedia (Day 18).</string>
 </resources>
