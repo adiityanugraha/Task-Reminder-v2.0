@@ -12,17 +12,16 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.Task;
+import com.example.taskreminder2.ui.BaseToolbarActivity;
 import com.example.taskreminder2.ui.TaskViewBinder;
 import com.example.taskreminder2.ui.tasklist.TaskFormActivity;
 import com.example.taskreminder2.util.TaskStatus;
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -31,7 +30,7 @@ import com.google.android.material.textfield.TextInputEditText;
  * (Fitur-02). Edit/Hapus lewat menu toolbar. Day 10 menambah input catatan
  * manual (Fitur-05) di layar ini.
  */
-public class TaskDetailActivity extends AppCompatActivity {
+public class TaskDetailActivity extends BaseToolbarActivity {
 
     public static final String EXTRA_TASK_ID = "extra_task_id";
 
@@ -57,12 +56,7 @@ public class TaskDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_detail);
-
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        setupToolbar(0, true);
 
         textTitle = findViewById(R.id.textDetailTitle);
         textPriority = findViewById(R.id.textDetailPriority);
@@ -160,12 +154,6 @@ public class TaskDetailActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
     }
 
     private void confirmDelete() {

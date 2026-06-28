@@ -9,14 +9,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.Task;
+import com.example.taskreminder2.ui.BaseToolbarActivity;
 import com.example.taskreminder2.util.DateTimeFormatter;
 import com.example.taskreminder2.util.TaskStatus;
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputEditText;
@@ -30,7 +29,7 @@ import java.util.Calendar;
  * <p>Menulis lewat {@link TaskListViewModel} (insert/update) — Activity tidak
  * pernah memanggil Repository langsung.</p>
  */
-public class TaskFormActivity extends AppCompatActivity {
+public class TaskFormActivity extends BaseToolbarActivity {
 
     private static final String EXTRA_ID = "extra_id";
     private static final String EXTRA_TITLE = "extra_title";
@@ -67,12 +66,7 @@ public class TaskFormActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_form);
-
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        setupToolbar(0, true);
 
         editTitle = findViewById(R.id.editTitle);
         editDescription = findViewById(R.id.editDescription);
@@ -174,11 +168,5 @@ public class TaskFormActivity extends AppCompatActivity {
             viewModel.insert(task);
         }
         finish();
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
     }
 }

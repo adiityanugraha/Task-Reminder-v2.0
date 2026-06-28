@@ -8,7 +8,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,14 +15,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.model.Member;
 import com.example.taskreminder2.data.model.Team;
-import com.google.android.material.appbar.MaterialToolbar;
+import com.example.taskreminder2.ui.BaseToolbarActivity;
 import com.google.android.material.button.MaterialButton;
 
 /**
  * Kelola Team (Fitur-04, Day 17). Owner bisa mengeluarkan member & menghapus
  * team; member hanya melihat daftar anggota (aksi owner disembunyikan).
  */
-public class ManageTeamActivity extends AppCompatActivity implements MemberAdapter.OnRemoveListener {
+public class ManageTeamActivity extends BaseToolbarActivity implements MemberAdapter.OnRemoveListener {
 
     private static final String EXTRA_TEAM_ID = "extra_team_id";
     private static final String EXTRA_TEAM_NAME = "extra_team_name";
@@ -47,13 +46,7 @@ public class ManageTeamActivity extends AppCompatActivity implements MemberAdapt
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_team);
-
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(R.string.title_manage_team);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        setupToolbar(R.string.title_manage_team, true);
 
         viewModel = new ViewModelProvider(this).get(ManageTeamViewModel.class);
 
@@ -115,11 +108,5 @@ public class ManageTeamActivity extends AppCompatActivity implements MemberAdapt
                 .setPositiveButton(R.string.button_delete_team, (d, w) -> viewModel.deleteTeam(teamId))
                 .setNegativeButton(R.string.action_cancel, null)
                 .show();
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
     }
 }

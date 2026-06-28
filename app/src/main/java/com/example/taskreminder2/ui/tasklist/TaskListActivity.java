@@ -10,16 +10,15 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.Task;
+import com.example.taskreminder2.ui.BaseToolbarActivity;
 import com.example.taskreminder2.ui.taskdetail.TaskDetailActivity;
 import com.example.taskreminder2.ui.team.LoginActivity;
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -28,7 +27,7 @@ import com.google.android.material.textfield.TextInputEditText;
  * Layar utama (launcher): daftar tugas Personal Mode dengan pencarian &
  * filter (Fitur-03). Hanya bicara ke {@link TaskListViewModel}.
  */
-public class TaskListActivity extends AppCompatActivity
+public class TaskListActivity extends BaseToolbarActivity
         implements TaskAdapter.OnTaskInteractionListener {
 
     private TaskListViewModel viewModel;
@@ -41,9 +40,7 @@ public class TaskListActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_list);
-
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setupToolbar(0, false);
 
         RecyclerView recycler = findViewById(R.id.recyclerTasks);
         textEmpty = findViewById(R.id.textEmpty);

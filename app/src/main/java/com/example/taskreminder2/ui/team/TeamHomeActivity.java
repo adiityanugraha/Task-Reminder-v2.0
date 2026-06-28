@@ -11,13 +11,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskreminder2.R;
-import com.google.android.material.appbar.MaterialToolbar;
+import com.example.taskreminder2.ui.BaseToolbarActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
@@ -27,7 +26,7 @@ import com.google.android.material.textfield.TextInputLayout;
  * Beranda Team Mode (Fitur-04, Day 16): buat team baru / gabung lewat kode,
  * dan menampilkan daftar team milik user. Hanya dicapai saat sudah login.
  */
-public class TeamHomeActivity extends AppCompatActivity implements TeamAdapter.OnTeamClickListener {
+public class TeamHomeActivity extends BaseToolbarActivity implements TeamAdapter.OnTeamClickListener {
 
     /** Callback input dialog (hindari java.util.function.Consumer; minSdk 23). */
     private interface InputListener {
@@ -42,13 +41,7 @@ public class TeamHomeActivity extends AppCompatActivity implements TeamAdapter.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_team_home);
-
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(R.string.title_team_home);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        setupToolbar(R.string.title_team_home, true);
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
         teamViewModel = new ViewModelProvider(this).get(TeamViewModel.class);
@@ -142,11 +135,5 @@ public class TeamHomeActivity extends AppCompatActivity implements TeamAdapter.O
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
     }
 }

@@ -8,11 +8,10 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.taskreminder2.R;
-import com.google.android.material.appbar.MaterialToolbar;
+import com.example.taskreminder2.ui.BaseToolbarActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
@@ -21,7 +20,7 @@ import com.google.android.material.textfield.TextInputEditText;
  * Gerbang Team Mode (Fitur-04): kalau sudah ada sesi, langsung ke TeamHome;
  * kalau belum, tampilkan form login. Sukses → TeamHome.
  */
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseToolbarActivity {
 
     private AuthViewModel viewModel;
     private TextInputEditText editEmail;
@@ -42,13 +41,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(R.string.title_login);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        setupToolbar(R.string.title_login, true);
 
         viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
@@ -107,11 +100,5 @@ public class LoginActivity extends AppCompatActivity {
 
     private static String text(TextInputEditText field) {
         return field.getText() == null ? "" : field.getText().toString().trim();
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
     }
 }

@@ -5,11 +5,10 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.taskreminder2.R;
-import com.google.android.material.appbar.MaterialToolbar;
+import com.example.taskreminder2.ui.BaseToolbarActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
@@ -18,7 +17,7 @@ import com.google.android.material.textfield.TextInputEditText;
  * Pendaftaran akun (Fitur-04). Firebase otomatis login setelah register,
  * jadi sukses → langsung TeamHome.
  */
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends BaseToolbarActivity {
 
     private AuthViewModel viewModel;
     private TextInputEditText editName;
@@ -31,13 +30,7 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(R.string.title_register);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        setupToolbar(R.string.title_register, true);
 
         viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
@@ -93,11 +86,5 @@ public class RegisterActivity extends AppCompatActivity {
 
     private static String text(TextInputEditText field) {
         return field.getText() == null ? "" : field.getText().toString().trim();
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
     }
 }
