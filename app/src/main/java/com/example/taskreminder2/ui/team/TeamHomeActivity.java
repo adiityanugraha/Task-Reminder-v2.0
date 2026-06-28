@@ -117,8 +117,8 @@ public class TeamHomeActivity extends BaseToolbarActivity implements TeamAdapter
 
     @Override
     public void onTeamClick(com.example.taskreminder2.data.model.Team team) {
-        // Day 17: buka Kelola Team. (Day 18 akan menambah jalur ke tugas team.)
-        ManageTeamActivity.start(this, team);
+        // Day 19: buka daftar tugas team. Kelola Team diakses dari menu di sana.
+        TeamTasksActivity.start(this, team);
     }
 
     @Override

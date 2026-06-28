@@ -95,4 +95,9 @@
     <string name="confirm_delete_team_title">Hapus team?</string>
     <string name="confirm_delete_team_message">Team beserta seluruh anggotanya akan dihapus permanen.</string>
     <string name="member_only_note">Hanya owner yang bisa mengelola anggota &amp; menghapus team.</string>
+
+    <!-- Tugas Team Mode (Day 19) -->
+    <string name="empty_team_tasks">Belum ada tugas team.\nTekan + untuk menambah.</string>
+    <string name="dialog_add_team_task_title">Tambah Tugas Team</string>
+    <string name="menu_manage_team">Kelola Team</string>
 </resources>

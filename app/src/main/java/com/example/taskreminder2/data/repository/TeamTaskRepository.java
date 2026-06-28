@@ -7,6 +7,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +78,33 @@ public class TeamTaskRepository {
                 .addOnFailureListener(e -> callback.onResult(false, null, e.getMessage()));
     }
 
-    /** Baca sekali (non-realtime) — dipakai verifikasi Day 18. Day 19 menambah listener. */
+    /**
+     * Read realtime (Day 19): pasang snapshot listener pada koleksi tasks.
+     * Mengembalikan {@link ListenerRegistration} agar pemanggil (ViewModel)
+     * bisa melepasnya saat tidak dibutuhkan lagi — mencegah listener bocor.
+     * Listener juga emit dari cache lokal (offline) lebih dulu.
+     */
+    public ListenerRegistration listenTasks(String teamId, TasksCallback callback) {
+        return tasksRef(teamId)
+                .orderBy("deadline", Query.Direction.ASCENDING)
+                .addSnapshotListener((snap, err) -> {
+                    if (err != null || snap == null) {
+                        callback.onResult(new ArrayList<>());
+                        return;
+                    }
+                    List<TeamTask> tasks = new ArrayList<>();
+                    for (DocumentSnapshot d : snap.getDocuments()) {
+                        TeamTask task = d.toObject(TeamTask.class);
+                        if (task != null) {
+                            task.id = d.getId();
+                            tasks.add(task);
+                        }
+                    }
+                    callback.onResult(tasks);
+                });
+    }
+
+    /** Baca sekali (non-realtime) — dipakai verifikasi Day 18. */
     public void loadTasksOnce(String teamId, TasksCallback callback) {
         tasksRef(teamId).get()
                 .addOnSuccessListener(snap -> {

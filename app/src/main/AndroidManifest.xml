@@ -43,9 +43,14 @@
             android:parentActivityName=".ui.tasklist.TaskListActivity" />
 
         <activity
-            android:name=".ui.team.ManageTeamActivity"
+            android:name=".ui.team.TeamTasksActivity"
             android:exported="false"
             android:parentActivityName=".ui.team.TeamHomeActivity" />
+
+        <activity
+            android:name=".ui.team.ManageTeamActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.team.TeamTasksActivity" />
 
     </application>
 
