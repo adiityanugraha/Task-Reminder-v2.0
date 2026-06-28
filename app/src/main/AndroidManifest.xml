@@ -27,6 +27,21 @@
             android:exported="false"
             android:parentActivityName=".ui.tasklist.TaskListActivity" />
 
+        <activity
+            android:name=".ui.team.LoginActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.tasklist.TaskListActivity" />
+
+        <activity
+            android:name=".ui.team.RegisterActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.team.LoginActivity" />
+
+        <activity
+            android:name=".ui.team.TeamHomeActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.tasklist.TaskListActivity" />
+
     </application>
 
 </manifest>

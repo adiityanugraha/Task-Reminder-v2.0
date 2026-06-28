@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.Task;
 import com.example.taskreminder2.ui.taskdetail.TaskDetailActivity;
+import com.example.taskreminder2.ui.team.LoginActivity;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -100,6 +103,23 @@ public class TaskListActivity extends AppCompatActivity
 
         filtering = !keyword.isEmpty() || filter != TaskListViewModel.Filter.ALL;
         viewModel.setQuery(filter, keyword);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_task_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_team_mode) {
+            // LoginActivity adalah gerbang: kalau sudah ada sesi, dia langsung
+            // meneruskan ke TeamHome.
+            startActivity(new Intent(this, LoginActivity.class));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

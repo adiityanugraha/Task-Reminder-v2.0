@@ -48,4 +48,23 @@
     <string name="list_no_deadline">Tanpa deadline</string>
     <!-- Penanda terlambat (Fitur-08) -->
     <string name="label_overdue">Terlambat</string>
+
+    <!-- Team Mode: auth (Fitur-04) -->
+    <string name="menu_team_mode">Team Mode</string>
+    <string name="title_login">Masuk Team Mode</string>
+    <string name="title_register">Daftar Akun</string>
+    <string name="title_team_home">Team Mode</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password (min. 6 karakter)</string>
+    <string name="hint_display_name">Nama tampilan</string>
+    <string name="button_login">Masuk</string>
+    <string name="button_register">Daftar</string>
+    <string name="button_logout">Keluar</string>
+    <string name="link_to_register">Belum punya akun? Daftar</string>
+    <string name="link_to_login">Sudah punya akun? Masuk</string>
+    <string name="error_email_required">Email wajib diisi</string>
+    <string name="error_password_short">Password minimal 6 karakter</string>
+    <string name="error_name_required">Nama tampilan wajib diisi</string>
+    <string name="team_logged_in_as">Masuk sebagai:\n%1$s</string>
+    <string name="team_placeholder">Buat atau gabung team akan tersedia berikutnya (Day 16).</string>
 </resources>
