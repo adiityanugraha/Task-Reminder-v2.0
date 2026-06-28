@@ -124,8 +124,8 @@ public class TeamHomeActivity extends AppCompatActivity implements TeamAdapter.O
 
     @Override
     public void onTeamClick(com.example.taskreminder2.data.model.Team team) {
-        // Day 18 akan membuka daftar tugas team ini.
-        Toast.makeText(this, R.string.team_tasks_soon, Toast.LENGTH_SHORT).show();
+        // Day 17: buka Kelola Team. (Day 18 akan menambah jalur ke tugas team.)
+        ManageTeamActivity.start(this, team);
     }
 
     @Override

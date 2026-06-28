@@ -2,6 +2,7 @@ package com.example.taskreminder2.data.repository;
 
 import androidx.annotation.Nullable;
 
+import com.example.taskreminder2.data.model.Member;
 import com.example.taskreminder2.data.model.Team;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -35,6 +36,14 @@ public class TeamRepository {
 
     public interface TeamsCallback {
         void onResult(List<Team> teams);
+    }
+
+    public interface MembersCallback {
+        void onResult(List<Member> members);
+    }
+
+    public interface ActionCallback {
+        void onResult(boolean success, @Nullable String errorMessage);
     }
 
     private static final String CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -146,6 +155,69 @@ public class TeamRepository {
                             .addOnFailureListener(e -> callback.onResult(new ArrayList<>()));
                 })
                 .addOnFailureListener(e -> callback.onResult(new ArrayList<>()));
+    }
+
+    @Nullable
+    public String currentUid() {
+        FirebaseUser user = auth.getCurrentUser();
+        return user != null ? user.getUid() : null;
+    }
+
+    /** Daftar anggota sebuah team (Day 17 — Kelola Team). */
+    public void loadMembers(String teamId, MembersCallback callback) {
+        db.collection("teams").document(teamId).collection("members").get()
+                .addOnSuccessListener(snap -> {
+                    List<Member> members = new ArrayList<>();
+                    for (DocumentSnapshot d : snap.getDocuments()) {
+                        members.add(new Member(d.getId(),
+                                d.getString("displayName"),
+                                d.getString("role")));
+                    }
+                    callback.onResult(members);
+                })
+                .addOnFailureListener(e -> callback.onResult(new ArrayList<>()));
+    }
+
+    /** Owner mengeluarkan seorang member. */
+    public void removeMember(String teamId, String memberUid, ActionCallback callback) {
+        DocumentReference teamRef = db.collection("teams").document(teamId);
+        WriteBatch batch = db.batch();
+        batch.delete(teamRef.collection("members").document(memberUid));
+        batch.set(db.collection("users").document(memberUid),
+                singletonMap("teams", FieldValue.arrayRemove(teamId)), SetOptions.merge());
+        batch.commit()
+                .addOnSuccessListener(x -> callback.onResult(true, null))
+                .addOnFailureListener(e -> callback.onResult(false, e.getMessage()));
+    }
+
+    /**
+     * Owner menghapus team: hapus semua member subdoc + dokumen team, dan
+     * lepas teamId dari {@code users/{uid}.teams} tiap member. Firestore tidak
+     * meng-cascade subcollection, jadi dilakukan client-side dalam satu batch.
+     */
+    public void deleteTeam(String teamId, ActionCallback callback) {
+        DocumentReference teamRef = db.collection("teams").document(teamId);
+        teamRef.collection("members").get()
+                .addOnSuccessListener(snap -> {
+                    WriteBatch batch = db.batch();
+                    for (DocumentSnapshot d : snap.getDocuments()) {
+                        batch.delete(d.getReference());
+                        batch.set(db.collection("users").document(d.getId()),
+                                singletonMap("teams", FieldValue.arrayRemove(teamId)),
+                                SetOptions.merge());
+                    }
+                    batch.delete(teamRef);
+                    batch.commit()
+                            .addOnSuccessListener(x -> callback.onResult(true, null))
+                            .addOnFailureListener(e -> callback.onResult(false, e.getMessage()));
+                })
+                .addOnFailureListener(e -> callback.onResult(false, e.getMessage()));
+    }
+
+    private static Map<String, Object> singletonMap(String key, Object value) {
+        Map<String, Object> map = new HashMap<>();
+        map.put(key, value);
+        return map;
     }
 
     private Map<String, Object> memberDoc(FirebaseUser user, String role) {
