@@ -3,15 +3,22 @@ package com.example.taskreminder2.data.repository;
 import androidx.annotation.Nullable;
 
 import com.example.taskreminder2.data.model.TeamTask;
+import com.example.taskreminder2.data.model.TeamTaskLog;
+import com.example.taskreminder2.util.LogType;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Akses tugas Team Mode — menulis LANGSUNG ke Firestore
@@ -30,6 +37,14 @@ public class TeamTaskRepository {
 
     public interface TasksCallback {
         void onResult(List<TeamTask> tasks);
+    }
+
+    public interface TaskResultCallback {
+        void onResult(TeamTask task);
+    }
+
+    public interface LogsCallback {
+        void onResult(List<TeamTaskLog> logs);
     }
 
     private final FirebaseFirestore db;
@@ -53,28 +68,72 @@ public class TeamTaskRepository {
         return auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
     }
 
+    private String currentDisplayName() {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            return "?";
+        }
+        String name = user.getDisplayName();
+        return (name != null && !name.isEmpty()) ? name : user.getEmail();
+    }
+
+    private void writeActivityLog(String teamId, String taskId, String content) {
+        Map<String, Object> log = new HashMap<>();
+        log.put("logType", LogType.ACTIVITY);
+        log.put("content", content);
+        log.put("createdAt", System.currentTimeMillis());
+        log.put("createdBy", currentDisplayName());
+        tasksRef(teamId).document(taskId).collection("logs").add(log);
+    }
+
     public void createTask(String teamId, TeamTask task, TaskCallback callback) {
         String uid = currentUid();
         task.createdBy = uid;
         task.updatedBy = uid;
         task.updatedAt = System.currentTimeMillis();
         tasksRef(teamId).add(task)
-                .addOnSuccessListener(ref -> callback.onResult(true, ref.getId(), null))
+                .addOnSuccessListener(ref -> {
+                    // Fitur-02: catat aktivitas otomatis dengan nama anggota.
+                    writeActivityLog(teamId, ref.getId(), "Tugas dibuat");
+                    callback.onResult(true, ref.getId(), null);
+                })
                 .addOnFailureListener(e -> callback.onResult(false, null, e.getMessage()));
     }
 
     public void updateTask(String teamId, TeamTask task, TaskCallback callback) {
-        task.updatedBy = currentUid();
-        task.updatedAt = System.currentTimeMillis();
-        tasksRef(teamId).document(task.id).set(task)
-                .addOnSuccessListener(x -> callback.onResult(true, task.id, null))
+        // Partial update: hanya field yang bisa diedit, agar createdBy/assignedTo/
+        // createdAt tidak terhapus (berbeda dengan set() yang menimpa seluruh doc).
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("title", task.title);
+        updates.put("description", task.description);
+        updates.put("deadline", task.deadline);
+        updates.put("priority", task.priority);
+        updates.put("status", task.status);
+        updates.put("updatedAt", System.currentTimeMillis());
+        updates.put("updatedBy", currentUid());
+        tasksRef(teamId).document(task.id).update(updates)
+                .addOnSuccessListener(x -> {
+                    writeActivityLog(teamId, task.id, "Tugas diperbarui");
+                    callback.onResult(true, task.id, null);
+                })
                 .addOnFailureListener(e -> callback.onResult(false, null, e.getMessage()));
     }
 
     public void deleteTask(String teamId, String taskId, TaskCallback callback) {
-        // Day 23/27: saat subcollection logs sudah ada, hapus juga lewat batch.
-        tasksRef(teamId).document(taskId).delete()
-                .addOnSuccessListener(x -> callback.onResult(true, taskId, null))
+        // Firestore tidak meng-cascade subcollection: hapus logs + task dalam
+        // satu batch (client-side) agar tak ada log orphan (blueprint Bagian 6).
+        DocumentReference taskRef = tasksRef(teamId).document(taskId);
+        taskRef.collection("logs").get()
+                .addOnSuccessListener(snap -> {
+                    WriteBatch batch = db.batch();
+                    for (DocumentSnapshot d : snap.getDocuments()) {
+                        batch.delete(d.getReference());
+                    }
+                    batch.delete(taskRef);
+                    batch.commit()
+                            .addOnSuccessListener(x -> callback.onResult(true, taskId, null))
+                            .addOnFailureListener(e -> callback.onResult(false, null, e.getMessage()));
+                })
                 .addOnFailureListener(e -> callback.onResult(false, null, e.getMessage()));
     }
 
@@ -119,5 +178,53 @@ public class TeamTaskRepository {
                     callback.onResult(tasks);
                 })
                 .addOnFailureListener(e -> callback.onResult(new ArrayList<>()));
+    }
+
+    // --- Detail tugas: observasi 1 dokumen + riwayat (Day 23) ---
+
+    /** Observasi satu tugas realtime (untuk header layar detail). null = terhapus. */
+    public ListenerRegistration observeTask(String teamId, String taskId, TaskResultCallback callback) {
+        return tasksRef(teamId).document(taskId).addSnapshotListener((doc, err) -> {
+            if (err != null || doc == null || !doc.exists()) {
+                callback.onResult(null);
+                return;
+            }
+            TeamTask task = doc.toObject(TeamTask.class);
+            if (task != null) {
+                task.id = doc.getId();
+            }
+            callback.onResult(task);
+        });
+    }
+
+    /** Observasi riwayat (ACTIVITY + NOTE) sebuah tugas, terbaru di atas. */
+    public ListenerRegistration observeLogs(String teamId, String taskId, LogsCallback callback) {
+        return tasksRef(teamId).document(taskId).collection("logs")
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .addSnapshotListener((snap, err) -> {
+                    if (err != null || snap == null) {
+                        callback.onResult(new ArrayList<>());
+                        return;
+                    }
+                    List<TeamTaskLog> logs = new ArrayList<>();
+                    for (DocumentSnapshot d : snap.getDocuments()) {
+                        TeamTaskLog log = d.toObject(TeamTaskLog.class);
+                        if (log != null) {
+                            log.id = d.getId();
+                            logs.add(log);
+                        }
+                    }
+                    callback.onResult(logs);
+                });
+    }
+
+    /** Fitur-05: catatan manual (NOTE) dari user. */
+    public void addNote(String teamId, String taskId, String content) {
+        Map<String, Object> log = new HashMap<>();
+        log.put("logType", LogType.NOTE);
+        log.put("content", content);
+        log.put("createdAt", System.currentTimeMillis());
+        log.put("createdBy", currentDisplayName());
+        tasksRef(teamId).document(taskId).collection("logs").add(log);
     }
 }

@@ -6,7 +6,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -115,16 +114,7 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
             textStatus.setText(TaskStatus.label(task.status));
 
             // Fitur-06: penanda visual prioritas tinggi.
-            if (task.priority == Task.PRIORITY_HIGH) {
-                textPriorityBadge.setVisibility(View.VISIBLE);
-                int color = ContextCompat.getColor(itemView.getContext(), R.color.priority_high);
-                float density = itemView.getResources().getDisplayMetrics().density;
-                card.setStrokeColor(color);
-                card.setStrokeWidth((int) (1.5f * density));
-            } else {
-                textPriorityBadge.setVisibility(View.GONE);
-                card.setStrokeWidth(0);
-            }
+            TaskViewBinder.bindPriority(card, textPriorityBadge, task.priority);
         }
     }
 }

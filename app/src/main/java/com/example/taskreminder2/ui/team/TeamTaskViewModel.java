@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.taskreminder2.data.model.TeamTask;
 import com.example.taskreminder2.data.repository.TeamTaskRepository;
-import com.example.taskreminder2.util.TaskStatus;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.List;
@@ -41,21 +40,6 @@ public class TeamTaskViewModel extends ViewModel {
 
     public LiveData<String> getMessage() {
         return message;
-    }
-
-    /** Day 19: quick-add (judul saja). Form lengkap di Day 22. */
-    public void createTask(String title) {
-        TeamTask task = new TeamTask();
-        task.title = title;
-        task.description = "";
-        task.deadline = 0;
-        task.priority = 0;
-        task.status = TaskStatus.NOT_STARTED;
-        repo.createTask(teamId, task, (ok, id, err) -> {
-            if (!ok) {
-                message.setValue("Gagal: " + err);
-            }
-        });
     }
 
     public void deleteTask(TeamTask task) {

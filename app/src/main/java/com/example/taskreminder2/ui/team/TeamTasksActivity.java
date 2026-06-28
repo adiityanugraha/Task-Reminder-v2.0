@@ -3,8 +3,6 @@ package com.example.taskreminder2.ui.team;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,12 +20,10 @@ import com.example.taskreminder2.data.model.TeamTask;
 import com.example.taskreminder2.ui.BaseToolbarActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 /**
- * Daftar tugas Team Mode (Day 19) — realtime via snapshot listener. Quick-add
- * (judul saja); form lengkap + badge/overdue di Day 22. Menu "Kelola Team"
+ * Daftar tugas Team Mode — realtime via snapshot listener. FAB & klik item
+ * membuka {@link TeamTaskFormActivity} (Fitur-01 Team). Menu "Kelola Team"
  * membuka {@link ManageTeamActivity}.
  */
 public class TeamTasksActivity extends BaseToolbarActivity
@@ -49,7 +45,6 @@ public class TeamTasksActivity extends BaseToolbarActivity
 
     private TeamTaskViewModel viewModel;
     private Team team;
-    private TextView textEmpty;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +59,7 @@ public class TeamTasksActivity extends BaseToolbarActivity
                 getIntent().getStringExtra(EXTRA_OWNER_ID));
         setTitle(team.name);
 
-        textEmpty = findViewById(R.id.textEmpty);
+        TextView textEmpty = findViewById(R.id.textEmpty);
         RecyclerView recycler = findViewById(R.id.recyclerTeamTasks);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         TeamTaskAdapter adapter = new TeamTaskAdapter(this);
@@ -85,28 +80,12 @@ public class TeamTasksActivity extends BaseToolbarActivity
         });
 
         FloatingActionButton fab = findViewById(R.id.fabAdd);
-        fab.setOnClickListener(v -> showAddTaskDialog());
+        fab.setOnClickListener(v -> TeamTaskFormActivity.start(this, team.id));
     }
 
-    private void showAddTaskDialog() {
-        View view = LayoutInflater.from(this).inflate(R.layout.dialog_input, null, false);
-        TextInputLayout inputLayout = view.findViewById(R.id.inputLayout);
-        TextInputEditText editInput = view.findViewById(R.id.editInput);
-        inputLayout.setHint(R.string.hint_title);
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.dialog_add_team_task_title)
-                .setView(view)
-                .setPositiveButton(R.string.button_save, (dialog, which) -> {
-                    String title = editInput.getText() == null ? "" : editInput.getText().toString().trim();
-                    if (TextUtils.isEmpty(title)) {
-                        Toast.makeText(this, R.string.error_title_required, Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    viewModel.createTask(title);
-                })
-                .setNegativeButton(R.string.action_cancel, null)
-                .show();
+    @Override
+    public void onTaskClick(TeamTask task) {
+        TeamTaskDetailActivity.start(this, team.id, task.id);
     }
 
     @Override

@@ -48,6 +48,16 @@
             android:parentActivityName=".ui.team.TeamHomeActivity" />
 
         <activity
+            android:name=".ui.team.TeamTaskFormActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.team.TeamTasksActivity" />
+
+        <activity
+            android:name=".ui.team.TeamTaskDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.team.TeamTasksActivity" />
+
+        <activity
             android:name=".ui.team.ManageTeamActivity"
             android:exported="false"
             android:parentActivityName=".ui.team.TeamTasksActivity" />

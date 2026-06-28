@@ -12,16 +12,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.model.TeamTask;
-import com.example.taskreminder2.util.DateTimeFormatter;
+import com.example.taskreminder2.ui.TaskViewBinder;
 import com.example.taskreminder2.util.TaskStatus;
+import com.google.android.material.card.MaterialCardView;
 
 /**
- * Adapter daftar tugas Team Mode (Day 19, minimal). Badge prioritas & penanda
- * overdue ditambahkan Day 22 (Fitur-06/08 Team Mode).
+ * Adapter daftar tugas Team Mode. Memakai layout item & helper tampilan yang
+ * sama dengan Personal Mode ({@link TaskViewBinder}) — badge prioritas
+ * (Fitur-06) dan penanda overdue (Fitur-08) konsisten di kedua mode.
  */
 public class TeamTaskAdapter extends ListAdapter<TeamTask, TeamTaskAdapter.TaskViewHolder> {
 
     public interface OnTaskInteractionListener {
+        void onTaskClick(TeamTask task);
+
         void onTaskLongClick(TeamTask task);
     }
 
@@ -57,7 +61,7 @@ public class TeamTaskAdapter extends ListAdapter<TeamTask, TeamTaskAdapter.TaskV
     @Override
     public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_team_task, parent, false);
+                .inflate(R.layout.item_task, parent, false);
         return new TaskViewHolder(view);
     }
 
@@ -67,16 +71,28 @@ public class TeamTaskAdapter extends ListAdapter<TeamTask, TeamTaskAdapter.TaskV
     }
 
     class TaskViewHolder extends RecyclerView.ViewHolder {
+        private final MaterialCardView card;
         private final TextView textTitle;
         private final TextView textDeadline;
         private final TextView textStatus;
+        private final TextView textPriorityBadge;
+        private final int defaultDeadlineColor;
 
         TaskViewHolder(@NonNull View itemView) {
             super(itemView);
+            card = (MaterialCardView) itemView;
             textTitle = itemView.findViewById(R.id.textTitle);
             textDeadline = itemView.findViewById(R.id.textDeadline);
             textStatus = itemView.findViewById(R.id.textStatus);
+            textPriorityBadge = itemView.findViewById(R.id.textPriorityBadge);
+            defaultDeadlineColor = textDeadline.getCurrentTextColor();
 
+            itemView.setOnClickListener(v -> {
+                int pos = getBindingAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
+                    listener.onTaskClick(getItem(pos));
+                }
+            });
             itemView.setOnLongClickListener(v -> {
                 int pos = getBindingAdapterPosition();
                 if (pos != RecyclerView.NO_POSITION) {
@@ -89,10 +105,9 @@ public class TeamTaskAdapter extends ListAdapter<TeamTask, TeamTaskAdapter.TaskV
 
         void bind(TeamTask task) {
             textTitle.setText(task.title);
-            textDeadline.setText(task.deadline > 0
-                    ? DateTimeFormatter.formatDateTime(task.deadline)
-                    : itemView.getContext().getString(R.string.list_no_deadline));
+            TaskViewBinder.bindDeadline(textDeadline, task.deadline, task.status, defaultDeadlineColor);
             textStatus.setText(TaskStatus.label(task.status));
+            TaskViewBinder.bindPriority(card, textPriorityBadge, task.priority);
         }
     }
 }
