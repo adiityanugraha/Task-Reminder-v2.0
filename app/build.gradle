@@ -61,6 +61,10 @@ dependencies {
 
     // WorkManager — notifikasi Team Mode saat app tertutup (client-side, gratis)
     implementation 'androidx.work:work-runtime:2.9.1'
+    // Guava (android): menyediakan ListenableFuture untuk API WorkManager. Tanpa
+    // ini, stub kosong dari Firebase menang & compile gagal ("ListenableFuture
+    // not found").
+    implementation 'com.google.guava:guava:33.3.1-android'
 
     // Testing
     testImplementation 'junit:junit:4.13.2'

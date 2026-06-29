@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskreminder2.R;
+import com.example.taskreminder2.notification.TeamSyncWorker;
 import com.example.taskreminder2.ui.BaseToolbarActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -50,6 +51,10 @@ public class TeamHomeActivity extends BaseToolbarActivity implements TeamAdapter
             finish();
             return;
         }
+
+        // Masuk Team Mode → aktifkan polling notif saat app tertutup (Day 28).
+        // Idempoten, jadi aman dipanggil tiap kali layar ini dibuka.
+        TeamSyncWorker.schedule(this);
 
         TextView textLoggedInAs = findViewById(R.id.textLoggedInAs);
         textLoggedInAs.setText(getString(R.string.team_logged_in_as, authViewModel.currentUserEmail()));
@@ -130,6 +135,8 @@ public class TeamHomeActivity extends BaseToolbarActivity implements TeamAdapter
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.action_logout) {
+            // Logout → hentikan polling Team (tak ada user yang dipantau).
+            TeamSyncWorker.cancel(this);
             authViewModel.logout();
             finish();
             return true;
