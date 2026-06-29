@@ -41,9 +41,25 @@
         android:textSize="16sp"
         android:textStyle="bold" />
 
-    <!-- Spacer agar judul benar-benar di tengah (mengimbangi tombol back). -->
-    <Space
+    <!-- Slot aksi kanan (mis. menu pada Detail). Selalu 42x42 agar judul tetap
+         di tengah; ikon disembunyikan & wiring diatur Activity bila perlu. -->
+    <FrameLayout
+        android:id="@+id/btnHeaderAction"
         android:layout_width="42dp"
-        android:layout_height="42dp" />
+        android:layout_height="42dp"
+        android:clickable="false"
+        android:focusable="false"
+        android:foreground="?attr/selectableItemBackgroundBorderless">
+
+        <ImageView
+            android:id="@+id/imageHeaderAction"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:contentDescription="@string/cd_more"
+            android:src="@drawable/ic_more"
+            android:visibility="gone"
+            app:tint="@color/es_text_primary" />
+    </FrameLayout>
 
 </LinearLayout>

@@ -4,14 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,6 +23,7 @@ import com.example.taskreminder2.ui.TaskViewBinder;
 import com.example.taskreminder2.ui.tasklist.TaskFormActivity;
 import com.example.taskreminder2.util.TaskStatus;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 
 /**
@@ -45,25 +46,32 @@ public class TaskDetailActivity extends BaseToolbarActivity {
     private Task currentTask;
 
     private TextView textTitle;
+    private TextView textStatusLabel;
     private TextView textPriority;
     private TextView textStatus;
     private TextView textDeadline;
     private TextView textDescription;
     private TextView textLogsEmpty;
+    private TextView textProgressPercent;
+    private CircularProgressIndicator progressRing;
     private int defaultDeadlineColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_detail);
-        setupToolbar(0, true);
+        setupHeader(R.string.title_detail);
+        setupHeaderMenu();
 
         textTitle = findViewById(R.id.textDetailTitle);
+        textStatusLabel = findViewById(R.id.textDetailStatusLabel);
         textPriority = findViewById(R.id.textDetailPriority);
         textStatus = findViewById(R.id.textDetailStatus);
         textDeadline = findViewById(R.id.textDetailDeadline);
         textDescription = findViewById(R.id.textDetailDescription);
         textLogsEmpty = findViewById(R.id.textLogsEmpty);
+        textProgressPercent = findViewById(R.id.textProgressPercent);
+        progressRing = findViewById(R.id.progressRing);
         defaultDeadlineColor = textDeadline.getCurrentTextColor();
 
         RecyclerView recyclerLogs = findViewById(R.id.recyclerLogs);
@@ -98,15 +106,20 @@ public class TaskDetailActivity extends BaseToolbarActivity {
     }
 
     private void bindTask(Task task) {
-        setTitle(task.title);
         textTitle.setText(task.title);
+
+        TaskViewBinder.bindDetailStatusLabel(textStatusLabel, task.deadline, task.status);
 
         textPriority.setVisibility(task.priority == Task.PRIORITY_HIGH
                 ? TextView.VISIBLE : TextView.GONE);
 
-        textStatus.setText(getString(R.string.detail_status, TaskStatus.label(task.status)));
+        textStatus.setText(TaskStatus.label(task.status));
 
         TaskViewBinder.bindDeadline(textDeadline, task, defaultDeadlineColor);
+
+        int progress = TaskViewBinder.progressForStatus(task.status);
+        progressRing.setProgress(progress);
+        textProgressPercent.setText(getString(R.string.percent_format, progress));
 
         if (task.description == null || task.description.trim().isEmpty()) {
             textDescription.setText(R.string.detail_no_description);
@@ -132,28 +145,35 @@ public class TaskDetailActivity extends BaseToolbarActivity {
         Toast.makeText(this, R.string.note_added, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_task_detail, menu);
-        return true;
+    /** Aktifkan tombol aksi (titik tiga) di header → menu Edit/Hapus. */
+    private void setupHeaderMenu() {
+        View action = findViewById(R.id.btnHeaderAction);
+        ImageView icon = findViewById(R.id.imageHeaderAction);
+        icon.setVisibility(View.VISIBLE);
+        action.setClickable(true);
+        action.setOnClickListener(this::showMenu);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_edit) {
-            if (currentTask != null) {
-                Intent intent = new Intent(this, TaskFormActivity.class);
-                TaskFormActivity.putTaskExtras(intent, currentTask);
-                startActivity(intent);
+    private void showMenu(View anchor) {
+        PopupMenu menu = new PopupMenu(this, anchor);
+        menu.getMenuInflater().inflate(R.menu.menu_task_detail, menu.getMenu());
+        menu.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.action_edit) {
+                if (currentTask != null) {
+                    Intent intent = new Intent(this, TaskFormActivity.class);
+                    TaskFormActivity.putTaskExtras(intent, currentTask);
+                    startActivity(intent);
+                }
+                return true;
             }
-            return true;
-        }
-        if (id == R.id.action_delete) {
-            confirmDelete();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+            if (id == R.id.action_delete) {
+                confirmDelete();
+                return true;
+            }
+            return false;
+        });
+        menu.show();
     }
 
     private void confirmDelete() {

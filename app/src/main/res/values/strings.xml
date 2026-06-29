@@ -44,6 +44,17 @@
     <!-- Detail tugas & riwayat -->
     <string name="action_edit">Edit</string>
     <string name="heading_history">Riwayat Aktivitas</string>
+    <!-- Detail redesign (Emerald Sand) -->
+    <string name="title_detail">Detail Tugas</string>
+    <string name="detail_label_active">TUGAS AKTIF</string>
+    <string name="detail_label_done">SELESAI</string>
+    <string name="detail_label_overdue">TERLAMBAT</string>
+    <string name="detail_progress_caption">selesai</string>
+    <string name="section_notes_history">Catatan &amp; Riwayat</string>
+    <string name="info_status_label">Status</string>
+    <string name="info_deadline_label">Deadline</string>
+    <string name="cd_more">Menu</string>
+    <string name="percent_format">%1$d%%</string>
     <string name="logs_empty">Belum ada riwayat.</string>
     <string name="detail_status">Status: %1$s</string>
     <string name="detail_no_description">(Tanpa deskripsi)</string>

@@ -114,6 +114,39 @@ public final class TaskViewBinder {
         }
     }
 
+    /**
+     * Progres ditURUNkan dari status (tidak ada kolom progres): Belum=0,
+     * Dikerjakan=50, Selesai=100. Dipakai ring progres di layar detail —
+     * placeholder visual sampai fitur progres sungguhan dibuat.
+     */
+    public static int progressForStatus(String status) {
+        if (TaskStatus.DONE.equals(status)) {
+            return 100;
+        }
+        if (TaskStatus.IN_PROGRESS.equals(status)) {
+            return 50;
+        }
+        return 0;
+    }
+
+    /**
+     * Label keadaan di header detail: TERLAMBAT (merah) / SELESAI (abu) /
+     * TUGAS AKTIF (emerald).
+     */
+    public static void bindDetailStatusLabel(TextView view, long deadline, String status) {
+        Context ctx = view.getContext();
+        if (OverdueChecker.isOverdue(deadline, status)) {
+            view.setText(R.string.detail_label_overdue);
+            view.setTextColor(ContextCompat.getColor(ctx, R.color.es_overdue));
+        } else if (TaskStatus.DONE.equals(status)) {
+            view.setText(R.string.detail_label_done);
+            view.setTextColor(ContextCompat.getColor(ctx, R.color.es_text_muted));
+        } else {
+            view.setText(R.string.detail_label_active);
+            view.setTextColor(ContextCompat.getColor(ctx, R.color.es_primary));
+        }
+    }
+
     private TaskViewBinder() {
     }
 }
