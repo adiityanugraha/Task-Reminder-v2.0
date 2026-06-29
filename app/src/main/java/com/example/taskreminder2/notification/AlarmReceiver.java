@@ -1,14 +1,9 @@
 package com.example.taskreminder2.notification;
 
-import android.app.Application;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
 import com.example.taskreminder2.data.repository.TaskLogRepository;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Menerima alarm deadline (dijadwalkan {@link AlarmReminderScheduler}) lalu
@@ -20,12 +15,10 @@ import java.util.concurrent.Executors;
  * mencapai deadline. Karena itu sekaligus mencatat log "Tugas terlambat" sekali
  * (Fitur-08 → Fitur-02), dipicu dari sini, bukan dari path baca.</p>
  */
-public class AlarmReceiver extends BroadcastReceiver {
+public class AlarmReceiver extends BackgroundBroadcastReceiver {
 
     public static final String EXTRA_TASK_ID = "extra_task_id";
     public static final String EXTRA_TASK_TITLE = "extra_task_title";
-
-    private static final ExecutorService IO = Executors.newSingleThreadExecutor();
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -36,16 +29,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         String title = intent.getStringExtra(EXTRA_TASK_TITLE);
         NotificationHelper.showTaskReminder(context, taskId, title);
 
-        // Tulis log "Tugas terlambat" di background; goAsync() menjaga proses
-        // tetap hidup sampai penulisan selesai.
-        final PendingResult pending = goAsync();
-        final Application app = (Application) context.getApplicationContext();
-        IO.execute(() -> {
-            try {
-                new TaskLogRepository(app).logActivitySync(taskId, "Tugas terlambat");
-            } finally {
-                pending.finish();
-            }
-        });
+        // Tulis log "Tugas terlambat" di background sampai selesai.
+        runAsync(context, app ->
+                new TaskLogRepository(app).logActivitySync(taskId, "Tugas terlambat"));
     }
 }

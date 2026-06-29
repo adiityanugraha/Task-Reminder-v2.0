@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
+import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
@@ -35,21 +36,11 @@ public final class NotificationHelper {
      *  notifikasi Personal yang memakai taskId (kecil). */
     private static final int NOTIF_ID_TEAM_CHANGE = 0x7EA3;
 
-    /** Buat channel sekali (idempoten). Aman dipanggil sebelum tiap notifikasi. */
+    /** Buat channel Personal sekali (idempoten). Aman dipanggil sebelum tiap notifikasi. */
     public static void ensureChannel(Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            return;
-        }
-        NotificationManager nm = context.getSystemService(NotificationManager.class);
-        if (nm == null || nm.getNotificationChannel(CHANNEL_REMINDERS) != null) {
-            return;
-        }
-        NotificationChannel channel = new NotificationChannel(
-                CHANNEL_REMINDERS,
-                context.getString(R.string.channel_reminders_name),
+        ensureChannel(context, CHANNEL_REMINDERS,
+                R.string.channel_reminders_name, R.string.channel_reminders_desc,
                 NotificationManager.IMPORTANCE_HIGH);
-        channel.setDescription(context.getString(R.string.channel_reminders_desc));
-        nm.createNotificationChannel(channel);
     }
 
     /**
@@ -90,18 +81,25 @@ public final class NotificationHelper {
 
     /** Buat channel Team sekali (idempoten). */
     public static void ensureTeamChannel(Context context) {
+        ensureChannel(context, CHANNEL_TEAM,
+                R.string.channel_team_name, R.string.channel_team_desc,
+                NotificationManager.IMPORTANCE_DEFAULT);
+    }
+
+    /** Pembuatan channel generik (idempoten, no-op sebelum API 26). */
+    private static void ensureChannel(Context context, String id,
+                                      @StringRes int nameRes, @StringRes int descRes,
+                                      int importance) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return;
         }
         NotificationManager nm = context.getSystemService(NotificationManager.class);
-        if (nm == null || nm.getNotificationChannel(CHANNEL_TEAM) != null) {
+        if (nm == null || nm.getNotificationChannel(id) != null) {
             return;
         }
         NotificationChannel channel = new NotificationChannel(
-                CHANNEL_TEAM,
-                context.getString(R.string.channel_team_name),
-                NotificationManager.IMPORTANCE_DEFAULT);
-        channel.setDescription(context.getString(R.string.channel_team_desc));
+                id, context.getString(nameRes), importance);
+        channel.setDescription(context.getString(descRes));
         nm.createNotificationChannel(channel);
     }
 
