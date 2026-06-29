@@ -7,6 +7,8 @@ import androidx.lifecycle.LiveData;
 import com.example.taskreminder2.data.local.AppDatabase;
 import com.example.taskreminder2.data.local.dao.TaskDao;
 import com.example.taskreminder2.data.local.entity.Task;
+import com.example.taskreminder2.notification.AlarmReminderScheduler;
+import com.example.taskreminder2.notification.ReminderScheduler;
 import com.example.taskreminder2.util.TaskStatus;
 
 import java.util.ArrayList;
@@ -30,20 +32,30 @@ public class TaskRepository {
     private final TaskDao taskDao;
     private final TaskLogRepository logRepository;
     private final ExecutorService io;
+    private final ReminderScheduler reminderScheduler;
     private final LiveData<List<Task>> allTasks;
 
     /** Dipakai produksi: bangun dari Application context. */
     public TaskRepository(Application application) {
         this(AppDatabase.getInstance(application).taskDao(),
                 new TaskLogRepository(application),
-                SHARED_IO);
+                SHARED_IO,
+                new AlarmReminderScheduler(application));
     }
 
-    /** Dipakai unit test: injeksi DAO (mock), log repo (mock) & executor. */
+    /** Dipakai unit test: injeksi DAO (mock), log repo (mock) & executor;
+     *  penjadwalan dinonaktifkan ({@link ReminderScheduler#NONE}). */
     public TaskRepository(TaskDao taskDao, TaskLogRepository logRepository, ExecutorService io) {
+        this(taskDao, logRepository, io, ReminderScheduler.NONE);
+    }
+
+    /** Injeksi penuh — dipakai produksi & test yang memverifikasi penjadwalan. */
+    public TaskRepository(TaskDao taskDao, TaskLogRepository logRepository, ExecutorService io,
+                          ReminderScheduler reminderScheduler) {
         this.taskDao = taskDao;
         this.logRepository = logRepository;
         this.io = io;
+        this.reminderScheduler = reminderScheduler;
         this.allTasks = taskDao.getAllTasks();
     }
 
@@ -72,7 +84,9 @@ public class TaskRepository {
     public void insert(Task task) {
         io.execute(() -> {
             long id = taskDao.insert(task);
+            task.id = (int) id;
             logRepository.logActivity((int) id, "Tugas dibuat");
+            reminderScheduler.schedule(task);
         });
     }
 
@@ -81,12 +95,18 @@ public class TaskRepository {
             Task before = taskDao.getByIdSync(task.id);
             taskDao.update(task);
             logRepository.logActivity(task.id, buildUpdateLog(before, task));
+            // schedule() sendiri yang memutuskan jadwalkan ulang vs batalkan
+            // (mis. status jadi SELESAI atau deadline lewat).
+            reminderScheduler.schedule(task);
         });
     }
 
     public void delete(Task task) {
         // Tidak perlu log: log milik task ikut terhapus via ON DELETE CASCADE.
-        io.execute(() -> taskDao.delete(task));
+        io.execute(() -> {
+            taskDao.delete(task);
+            reminderScheduler.cancel(task.id);
+        });
     }
 
     /**

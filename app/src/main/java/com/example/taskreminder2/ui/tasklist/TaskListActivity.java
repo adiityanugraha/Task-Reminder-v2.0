@@ -1,13 +1,19 @@
 package com.example.taskreminder2.ui.tasklist;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,6 +38,12 @@ public class TaskListActivity extends BaseToolbarActivity
     private TaskListViewModel viewModel;
     private TextView textEmpty;
     private boolean filtering;
+
+    /** Hasil permintaan izin notifikasi diabaikan: app tetap jalan tanpa izin,
+     *  notifikasi cukup tidak muncul (lihat NotificationHelper). */
+    private final ActivityResultLauncher<String> notifPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +79,17 @@ public class TaskListActivity extends BaseToolbarActivity
 
         fabAdd.setOnClickListener(v ->
                 startActivity(new Intent(this, TaskFormActivity.class)));
+
+        maybeRequestNotificationPermission();
+    }
+
+    /** API 33+ butuh izin runtime POST_NOTIFICATIONS agar pengingat bisa tampil. */
+    private void maybeRequestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            notifPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+        }
     }
 
     @Override

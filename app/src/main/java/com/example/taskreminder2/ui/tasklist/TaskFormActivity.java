@@ -3,7 +3,9 @@ package com.example.taskreminder2.ui.tasklist;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -13,10 +15,12 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.Task;
+import com.example.taskreminder2.notification.AlarmReminderScheduler;
 import com.example.taskreminder2.ui.BaseToolbarActivity;
 import com.example.taskreminder2.util.DateTimeFormatter;
 import com.example.taskreminder2.util.TaskStatus;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -167,6 +171,35 @@ public class TaskFormActivity extends BaseToolbarActivity {
         } else {
             viewModel.insert(task);
         }
-        finish();
+
+        // Tugas berdeadline butuh exact alarm agar pengingat tepat waktu. Di
+        // Android 12+ izin ini bisa belum aktif — tawarkan buka Setelan. Data
+        // sudah tersimpan; tanpa izin pun pengingat tetap jalan (inexact).
+        if (needsExactAlarmConsent(task)) {
+            promptExactAlarm();
+        } else {
+            finish();
+        }
+    }
+
+    private boolean needsExactAlarmConsent(Task task) {
+        return task.deadline > System.currentTimeMillis()
+                && !TaskStatus.DONE.equals(task.status)
+                && !AlarmReminderScheduler.canScheduleExact(this);
+    }
+
+    private void promptExactAlarm() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.exact_alarm_dialog_title)
+                .setMessage(R.string.exact_alarm_dialog_message)
+                .setPositiveButton(R.string.action_open_settings, (d, w) -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        startActivity(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM));
+                    }
+                    finish();
+                })
+                .setNegativeButton(R.string.action_later, (d, w) -> finish())
+                .setOnCancelListener(d -> finish())
+                .show();
     }
 }

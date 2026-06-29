@@ -100,4 +100,15 @@
     <string name="empty_team_tasks">Belum ada tugas team.\nTekan + untuk menambah.</string>
     <string name="dialog_add_team_task_title">Tambah Tugas Team</string>
     <string name="menu_manage_team">Kelola Team</string>
+
+    <!-- Notifikasi Personal Mode (Fitur-07, Day 25) -->
+    <string name="channel_reminders_name">Pengingat Tugas</string>
+    <string name="channel_reminders_desc">Pengingat saat deadline tugas tiba.</string>
+    <string name="notif_reminder_title">Deadline tugas tiba</string>
+    <string name="notif_reminder_text">\"%1$s\" sudah mencapai deadline.</string>
+    <string name="notif_reminder_fallback_title">Tugas</string>
+    <string name="exact_alarm_dialog_title">Izinkan pengingat tepat waktu</string>
+    <string name="exact_alarm_dialog_message">Agar pengingat deadline muncul tepat waktu, izinkan aplikasi menjadwalkan alarm presisi di Setelan. Tanpa izin ini pengingat tetap muncul, tapi bisa tertunda.</string>
+    <string name="action_open_settings">Buka Setelan</string>
+    <string name="action_later">Nanti</string>
 </resources>

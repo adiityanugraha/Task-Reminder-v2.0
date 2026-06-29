@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.example.taskreminder2.data.local.dao.TaskDao;
 import com.example.taskreminder2.data.local.entity.Task;
+import com.example.taskreminder2.notification.ReminderScheduler;
 import com.example.taskreminder2.util.TaskStatus;
 
 import org.junit.Before;
@@ -25,19 +26,21 @@ public class TaskRepositoryTest {
 
     private TaskDao dao;
     private TaskLogRepository logRepo;
+    private ReminderScheduler scheduler;
     private TaskRepository repo;
 
     @Before
     public void setup() {
         dao = mock(TaskDao.class);
         logRepo = mock(TaskLogRepository.class);
+        scheduler = mock(ReminderScheduler.class);
         ExecutorService directExecutor = mock(ExecutorService.class);
         // Jalankan Runnable langsung di thread test (sinkron).
         doAnswer(inv -> {
             ((Runnable) inv.getArgument(0)).run();
             return null;
         }).when(directExecutor).execute(any(Runnable.class));
-        repo = new TaskRepository(dao, logRepo, directExecutor);
+        repo = new TaskRepository(dao, logRepo, directExecutor, scheduler);
     }
 
     @Test
@@ -52,6 +55,19 @@ public class TaskRepositoryTest {
     }
 
     @Test
+    public void insert_setsGeneratedId_andSchedulesReminder() {
+        Task t = task("A", "", 0, 0, TaskStatus.NOT_STARTED);
+        when(dao.insert(t)).thenReturn(7L);
+
+        repo.insert(t);
+
+        // Id hasil generate dipasang ke objek sebelum dijadwalkan (penting agar
+        // PendingIntent memakai requestCode = id yang benar).
+        assertEquals(7, t.id);
+        verify(scheduler).schedule(t);
+    }
+
+    @Test
     public void update_logsDiff_andCallsDao() {
         Task before = task("A", "", 0, 0, TaskStatus.NOT_STARTED);
         before.id = 3;
@@ -63,6 +79,18 @@ public class TaskRepositoryTest {
 
         verify(dao).update(after);
         verify(logRepo).logActivity(3, "Prioritas diubah menjadi Tinggi");
+        verify(scheduler).schedule(after);
+    }
+
+    @Test
+    public void delete_cancelsReminder() {
+        Task t = task("A", "", 0, 0, TaskStatus.NOT_STARTED);
+        t.id = 5;
+
+        repo.delete(t);
+
+        verify(dao).delete(t);
+        verify(scheduler).cancel(5);
     }
 
     // --- buildUpdateLog (static, murni) ---

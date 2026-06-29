@@ -43,22 +43,29 @@ public class TaskLogRepository {
 
     /** Catatan aktivitas otomatis sistem (Fitur-02). */
     public void logActivity(int taskId, String content) {
-        insert(taskId, LogType.ACTIVITY, content);
+        io.execute(() -> insertSync(taskId, LogType.ACTIVITY, content));
     }
 
     /** Catatan manual user (Fitur-05). */
     public void insertNote(int taskId, String content) {
-        insert(taskId, LogType.NOTE, content);
+        io.execute(() -> insertSync(taskId, LogType.NOTE, content));
     }
 
-    private void insert(int taskId, String logType, String content) {
-        io.execute(() -> {
-            TaskLog log = new TaskLog();
-            log.taskId = taskId;
-            log.logType = logType;
-            log.content = content;
-            log.createdAt = System.currentTimeMillis();
-            dao.insert(log);
-        });
+    /**
+     * Versi sinkron untuk dipanggil dari thread background yang sudah ada (mis.
+     * {@code AlarmReceiver} via {@code goAsync()}), di mana eksekusi harus
+     * selesai sebelum proses boleh dimatikan. JANGAN dipanggil dari main thread.
+     */
+    public void logActivitySync(int taskId, String content) {
+        insertSync(taskId, LogType.ACTIVITY, content);
+    }
+
+    private void insertSync(int taskId, String logType, String content) {
+        TaskLog log = new TaskLog();
+        log.taskId = taskId;
+        log.logType = logType;
+        log.content = content;
+        log.createdAt = System.currentTimeMillis();
+        dao.insert(log);
     }
 }
