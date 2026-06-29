@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Style komponen "Emerald Sand" — dipakai ulang lintas layar agar konsisten
+     dan tidak mengulang atribut di tiap XML. -->
+<resources>
+
+    <!-- ===== Teks ===== -->
+    <style name="TextAppearance.ES.Display" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textColor">@color/es_text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+
+    <style name="TextAppearance.ES.Title" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/es_text_primary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.ES.Headline" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/es_text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="TextAppearance.ES.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/es_text_secondary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextAppearance.ES.Label" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">@color/es_text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="TextAppearance.ES.Caption" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textColor">@color/es_text_secondary</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <!-- ===== Kartu putih ===== -->
+    <style name="Widget.ES.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardBackgroundColor">@color/es_surface</item>
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">2dp</item>
+        <item name="contentPadding">16dp</item>
+    </style>
+
+    <!-- ===== Tombol ===== -->
+    <style name="Widget.ES.Button" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/es_primary</item>
+        <item name="android:textColor">@color/es_on_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <style name="Widget.ES.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">@color/es_text_primary</item>
+        <item name="strokeColor">@color/es_border</item>
+        <item name="strokeWidth">1.5dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <style name="Widget.ES.Button.Danger" parent="Widget.ES.Button.Outlined">
+        <item name="android:textColor">@color/es_priority</item>
+        <item name="strokeColor">@color/es_priority</item>
+    </style>
+
+    <!-- ===== Input teks (kotak putih, border lembut) ===== -->
+    <style name="Widget.ES.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/es_surface</item>
+        <item name="boxStrokeColor">@color/es_primary</item>
+        <item name="boxStrokeWidth">1.5dp</item>
+        <item name="boxCornerRadiusTopStart">14dp</item>
+        <item name="boxCornerRadiusTopEnd">14dp</item>
+        <item name="boxCornerRadiusBottomStart">14dp</item>
+        <item name="boxCornerRadiusBottomEnd">14dp</item>
+        <item name="hintTextColor">@color/es_text_secondary</item>
+    </style>
+
+    <!-- ===== Chip filter (pilihan) ===== -->
+    <style name="Widget.ES.Chip.Filter" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/es_chip_bg</item>
+        <item name="android:textColor">@color/es_chip_text</item>
+        <item name="chipStrokeColor">@color/es_border</item>
+        <item name="chipStrokeWidth">1.5dp</item>
+        <item name="chipCornerRadius">20dp</item>
+        <item name="checkedIconVisible">false</item>
+    </style>
+</resources>

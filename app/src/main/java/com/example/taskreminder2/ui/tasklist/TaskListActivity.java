@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -25,22 +27,30 @@ import com.example.taskreminder2.ui.SearchFilterBinder;
 import com.example.taskreminder2.ui.taskdetail.TaskDetailActivity;
 import com.example.taskreminder2.ui.team.LoginActivity;
 import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+
 /**
- * Layar utama (launcher): daftar tugas Personal Mode dengan pencarian &
- * filter (Fitur-03). Hanya bicara ke {@link TaskListViewModel}.
+ * Layar utama (Beranda, desain Emerald Sand): header + week strip + daftar
+ * tugas gaya kartu + bottom navigation. Hanya bicara ke {@link TaskListViewModel}.
+ *
+ * <p>Bottom nav: tab Beranda aktif; Profil membuka Team Mode; Kalender &
+ * Checklist placeholder sampai fiturnya dibuat.</p>
  */
 public class TaskListActivity extends BaseToolbarActivity
         implements TaskAdapter.OnTaskInteractionListener {
 
+    private static final Locale LOCALE_ID = new Locale("id", "ID");
+
     private TaskListViewModel viewModel;
+    private RecyclerView recycler;
     private TextView textEmpty;
     private boolean filtering;
 
-    /** Hasil permintaan izin notifikasi diabaikan: app tetap jalan tanpa izin,
-     *  notifikasi cukup tidak muncul (lihat NotificationHelper). */
+    /** Hasil permintaan izin notifikasi diabaikan: app tetap jalan tanpa izin. */
     private final ActivityResultLauncher<String> notifPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
             });
@@ -49,14 +59,11 @@ public class TaskListActivity extends BaseToolbarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_list);
-        setupToolbar(0, false);
 
-        RecyclerView recycler = findViewById(R.id.recyclerTasks);
         textEmpty = findViewById(R.id.textEmpty);
         TextInputEditText editSearch = findViewById(R.id.editSearch);
         ChipGroup chipGroup = findViewById(R.id.chipGroupFilter);
-        FloatingActionButton fabAdd = findViewById(R.id.fabAdd);
-
+        recycler = findViewById(R.id.recyclerTasks);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         TaskAdapter adapter = new TaskAdapter(this);
         recycler.setAdapter(adapter);
@@ -69,7 +76,7 @@ public class TaskListActivity extends BaseToolbarActivity
             adapter.submitList(tasks);
             boolean empty = tasks == null || tasks.isEmpty();
             textEmpty.setText(filtering ? R.string.empty_filtered : R.string.empty_tasks);
-            textEmpty.setVisibility(empty ? TextView.VISIBLE : TextView.GONE);
+            textEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
         });
 
         SearchFilterBinder.bind(editSearch, chipGroup, query -> {
@@ -77,10 +84,72 @@ public class TaskListActivity extends BaseToolbarActivity
             viewModel.setQuery(query);
         });
 
-        fabAdd.setOnClickListener(v ->
-                startActivity(new Intent(this, TaskFormActivity.class)));
+        setupHeaderDate();
+        buildWeekStrip();
+        setupNavigation();
 
         maybeRequestNotificationPermission();
+    }
+
+    /** Tanggal hari ini, mis. "Senin, 29 Juni". */
+    private void setupHeaderDate() {
+        TextView textDate = findViewById(R.id.textDate);
+        textDate.setText(new SimpleDateFormat("EEEE, d MMMM", LOCALE_ID)
+                .format(Calendar.getInstance().getTime()));
+    }
+
+    /** Isi week-strip: 7 hari minggu berjalan (Senin–Minggu), hari ini disorot. */
+    private void buildWeekStrip() {
+        LinearLayout weekStrip = findViewById(R.id.weekStrip);
+        weekStrip.removeAllViews();
+
+        Calendar today = Calendar.getInstance();
+        Calendar cursor = (Calendar) today.clone();
+        cursor.setFirstDayOfWeek(Calendar.MONDAY);
+        // Mundur ke hari Senin minggu ini.
+        int dow = cursor.get(Calendar.DAY_OF_WEEK);
+        int backToMonday = (dow == Calendar.SUNDAY) ? -6 : (Calendar.MONDAY - dow);
+        cursor.add(Calendar.DAY_OF_MONTH, backToMonday);
+
+        SimpleDateFormat dayFmt = new SimpleDateFormat("EEE", LOCALE_ID);
+        LayoutInflater inflater = LayoutInflater.from(this);
+        for (int i = 0; i < 7; i++) {
+            View pill = inflater.inflate(R.layout.item_week_day, weekStrip, false);
+            TextView textDay = pill.findViewById(R.id.textDay);
+            TextView textNum = pill.findViewById(R.id.textNum);
+            textDay.setText(dayFmt.format(cursor.getTime()));
+            textNum.setText(String.valueOf(cursor.get(Calendar.DAY_OF_MONTH)));
+
+            if (isSameDay(cursor, today)) {
+                pill.setBackgroundResource(R.drawable.bg_day_today);
+                textDay.setTextColor(0xCCFFFFFF);
+                textNum.setTextColor(0xFFFFFFFF);
+            }
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+            params.setMarginStart(dp(3));
+            params.setMarginEnd(dp(3));
+            weekStrip.addView(pill, params);
+
+            cursor.add(Calendar.DAY_OF_MONTH, 1);
+        }
+    }
+
+    private void setupNavigation() {
+        // Tombol tambah di header.
+        findViewById(R.id.btnAdd).setOnClickListener(v ->
+                startActivity(new Intent(this, TaskFormActivity.class)));
+
+        // Bottom nav.
+        findViewById(R.id.navHome).setOnClickListener(v -> recycler.smoothScrollToPosition(0));
+        findViewById(R.id.navPerson).setOnClickListener(v ->
+                // LoginActivity adalah gerbang: kalau sudah ada sesi, lanjut ke TeamHome.
+                startActivity(new Intent(this, LoginActivity.class)));
+        View.OnClickListener comingSoon = v ->
+                Toast.makeText(this, R.string.coming_soon, Toast.LENGTH_SHORT).show();
+        findViewById(R.id.navCalendar).setOnClickListener(comingSoon);
+        findViewById(R.id.navChecklist).setOnClickListener(comingSoon);
     }
 
     /** API 33+ butuh izin runtime POST_NOTIFICATIONS agar pengingat bisa tampil. */
@@ -92,21 +161,13 @@ public class TaskListActivity extends BaseToolbarActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_task_list, menu);
-        return true;
+    private static boolean isSameDay(Calendar a, Calendar b) {
+        return a.get(Calendar.YEAR) == b.get(Calendar.YEAR)
+                && a.get(Calendar.DAY_OF_YEAR) == b.get(Calendar.DAY_OF_YEAR);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_team_mode) {
-            // LoginActivity adalah gerbang: kalau sudah ada sesi, dia langsung
-            // meneruskan ke TeamHome.
-            startActivity(new Intent(this, LoginActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    private int dp(float value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     @Override

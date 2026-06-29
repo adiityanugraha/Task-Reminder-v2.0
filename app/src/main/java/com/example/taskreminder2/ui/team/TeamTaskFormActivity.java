@@ -6,8 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +19,7 @@ import com.example.taskreminder2.ui.BaseToolbarActivity;
 import com.example.taskreminder2.util.DateTimeFormatter;
 import com.example.taskreminder2.util.TaskStatus;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -63,7 +63,7 @@ public class TeamTaskFormActivity extends BaseToolbarActivity {
     private TextInputEditText editTitle;
     private TextInputEditText editDescription;
     private TextView textSelectedDeadline;
-    private Spinner spinnerStatus;
+    private MaterialButtonToggleGroup toggleStatus;
     private MaterialSwitch switchPriority;
 
     private String editingTaskId;        // null = mode tambah
@@ -73,7 +73,6 @@ public class TeamTaskFormActivity extends BaseToolbarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_form);
-        setupToolbar(0, true);
 
         String teamId = getIntent().getStringExtra(EXTRA_TEAM_ID);
         viewModel = new ViewModelProvider(this, new TeamTaskFormViewModelFactory(teamId))
@@ -82,15 +81,10 @@ public class TeamTaskFormActivity extends BaseToolbarActivity {
         editTitle = findViewById(R.id.editTitle);
         editDescription = findViewById(R.id.editDescription);
         textSelectedDeadline = findViewById(R.id.textSelectedDeadline);
-        spinnerStatus = findViewById(R.id.spinnerStatus);
+        toggleStatus = findViewById(R.id.toggleStatus);
         switchPriority = findViewById(R.id.switchPriority);
-        MaterialButton buttonPickDeadline = findViewById(R.id.buttonPickDeadline);
+        View buttonPickDeadline = findViewById(R.id.buttonPickDeadline);
         MaterialButton buttonSave = findViewById(R.id.buttonSave);
-
-        ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_item, TaskStatus.labels());
-        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerStatus.setAdapter(statusAdapter);
 
         prefillIfEditing();
 
@@ -112,11 +106,12 @@ public class TeamTaskFormActivity extends BaseToolbarActivity {
     private void prefillIfEditing() {
         Intent intent = getIntent();
         if (!intent.hasExtra(EXTRA_TASK_ID)) {
-            setTitle(R.string.title_add_task);
-            spinnerStatus.setSelection(TaskStatus.indexOf(TaskStatus.NOT_STARTED));
+            setupHeader(R.string.title_add_task);
+            toggleStatus.check(statusButtonId(TaskStatus.indexOf(TaskStatus.NOT_STARTED)));
+            refreshDeadlineLabel();
             return;
         }
-        setTitle(R.string.title_edit_task);
+        setupHeader(R.string.title_edit_task);
         editingTaskId = intent.getStringExtra(EXTRA_TASK_ID);
         editTitle.setText(intent.getStringExtra(EXTRA_TITLE));
         editDescription.setText(intent.getStringExtra(EXTRA_DESCRIPTION));
@@ -124,7 +119,7 @@ public class TeamTaskFormActivity extends BaseToolbarActivity {
                 intent.getIntExtra(EXTRA_PRIORITY, Task.PRIORITY_NORMAL) == Task.PRIORITY_HIGH);
 
         int statusIdx = TaskStatus.indexOf(intent.getStringExtra(EXTRA_STATUS));
-        spinnerStatus.setSelection(statusIdx >= 0 ? statusIdx : 0);
+        toggleStatus.check(statusButtonId(statusIdx >= 0 ? statusIdx : 0));
 
         selectedDeadline = intent.getLongExtra(EXTRA_DEADLINE, 0L);
         refreshDeadlineLabel();
@@ -173,9 +168,32 @@ public class TeamTaskFormActivity extends BaseToolbarActivity {
         task.description = editDescription.getText() == null
                 ? "" : editDescription.getText().toString().trim();
         task.deadline = selectedDeadline;
-        task.status = TaskStatus.VALUES[spinnerStatus.getSelectedItemPosition()];
+        task.status = TaskStatus.VALUES[statusIndex()];
         task.priority = switchPriority.isChecked() ? Task.PRIORITY_HIGH : Task.PRIORITY_NORMAL;
 
         viewModel.save(task);
+    }
+
+    /** Index status terpilih (paralel {@link TaskStatus#VALUES}). */
+    private int statusIndex() {
+        int id = toggleStatus.getCheckedButtonId();
+        if (id == R.id.btnStatusInProgress) {
+            return 1;
+        }
+        if (id == R.id.btnStatusDone) {
+            return 2;
+        }
+        return 0;
+    }
+
+    private int statusButtonId(int index) {
+        switch (index) {
+            case 1:
+                return R.id.btnStatusInProgress;
+            case 2:
+                return R.id.btnStatusDone;
+            default:
+                return R.id.btnStatusNotStarted;
+        }
     }
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Plus Jakarta Sans (Downloadable Font, weight reguler 400 sebagai basis).
+     Sertifikat dari values/font_certs.xml yang digenerate Android Studio.
+     Teks tebal (heading) memakai bold dari weight ini. Untuk multi-weight asli
+     (500/600/700/800) tanpa faux-bold, bundel .ttf (Route B). -->
+<font-family xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:fontProviderAuthority="com.google.android.gms.fonts"
+    app:fontProviderPackage="com.google.android.gms"
+    app:fontProviderQuery="Plus Jakarta Sans"
+    app:fontProviderCerts="@array/com_google_android_gms_fonts_certs">
+</font-family>

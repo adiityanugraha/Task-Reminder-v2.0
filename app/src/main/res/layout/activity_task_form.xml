@@ -1,21 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/es_background"
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+    <include layout="@layout/include_header" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -27,9 +20,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
+
+            <!-- Judul -->
+            <TextView
+                style="@style/TextAppearance.ES.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/form_label_title" />
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputLayoutTitle"
+                style="@style/Widget.ES.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_title">
@@ -41,65 +44,179 @@
                     android:inputType="textCapSentences" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Deskripsi -->
+            <TextView
+                style="@style/TextAppearance.ES.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/form_label_description" />
+
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.ES.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
                 android:hint="@string/hint_description">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="top"
                     android:inputType="textMultiLine|textCapSentences"
-                    android:minLines="2" />
+                    android:minLines="3" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Deadline -->
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="@string/label_deadline"
-                android:textAppearance="?attr/textAppearanceLabelLarge" />
-
-            <TextView
-                android:id="@+id/textSelectedDeadline"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/no_deadline"
-                android:textAppearance="?attr/textAppearanceBodyMedium" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonPickDeadline"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/TextAppearance.ES.Label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/button_pick_deadline" />
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/label_deadline" />
 
+            <LinearLayout
+                android:id="@+id/buttonPickDeadline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_input_box"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="14dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:contentDescription="@string/label_deadline"
+                    android:src="@drawable/ic_calendar"
+                    app:tint="@color/es_primary" />
+
+                <TextView
+                    android:id="@+id/textSelectedDeadline"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="@string/no_deadline"
+                    android:textColor="@color/es_text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/es_text_secondary" />
+            </LinearLayout>
+
+            <!-- Status (segmented) -->
             <TextView
-                android:layout_width="match_parent"
+                style="@style/TextAppearance.ES.Label"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="@string/label_status"
-                android:textAppearance="?attr/textAppearanceLabelLarge" />
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/label_status" />
 
-            <Spinner
-                android:id="@+id/spinnerStatus"
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggleStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp" />
+                app:selectionRequired="true"
+                app:singleSelection="true">
 
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/switchPriority"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnStatusNotStarted"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/status_not_started"
+                    app:strokeColor="@color/es_border" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnStatusInProgress"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/status_in_progress"
+                    app:strokeColor="@color/es_border" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnStatusDone"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/status_done"
+                    app:strokeColor="@color/es_border" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <!-- Prioritas -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="@string/label_priority_high" />
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_input_box"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="13dp">
+
+                <FrameLayout
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_icon_box"
+                    android:backgroundTint="@color/es_accent_yellow_bg">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_priority"
+                        app:tint="@color/es_priority" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_priority_high"
+                        android:textColor="@color/es_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/priority_subtitle"
+                        android:textColor="@color/es_text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchPriority"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonSave"
+                style="@style/Widget.ES.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"

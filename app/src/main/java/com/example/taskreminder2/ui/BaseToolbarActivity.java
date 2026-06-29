@@ -1,5 +1,8 @@
 package com.example.taskreminder2.ui;
 
+import android.view.View;
+import android.widget.TextView;
+
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -29,6 +32,25 @@ public abstract class BaseToolbarActivity extends AppCompatActivity {
                 getSupportActionBar().setTitle(titleRes);
             }
             getSupportActionBar().setDisplayHomeAsUpEnabled(showUp);
+        }
+    }
+
+    /**
+     * Wiring header kustom {@code include_header} (desain Emerald Sand): tombol
+     * back → {@code finish()}, dan judul tengah. Panggil SETELAH
+     * {@code setContentView}. Aman bila layar belum memakai header baru
+     * (findViewById null diabaikan).
+     */
+    protected void setupHeader(@StringRes int titleRes) {
+        View back = findViewById(R.id.btnBack);
+        if (back != null) {
+            back.setOnClickListener(v -> finish());
+        }
+        if (titleRes != 0) {
+            TextView title = findViewById(R.id.textHeaderTitle);
+            if (title != null) {
+                title.setText(titleRes);
+            }
         }
     }
 

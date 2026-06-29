@@ -7,8 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.lifecycle.ViewModelProvider;
@@ -20,6 +19,7 @@ import com.example.taskreminder2.ui.BaseToolbarActivity;
 import com.example.taskreminder2.util.DateTimeFormatter;
 import com.example.taskreminder2.util.TaskStatus;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputEditText;
@@ -27,11 +27,12 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.Calendar;
 
 /**
- * Form tambah/edit tugas (Fitur-01). Mode ditentukan dari ada-tidaknya
- * {@link #EXTRA_ID} pada Intent: ada → edit (prefill), tidak ada → tambah.
+ * Form tambah/edit tugas (Fitur-01, desain Emerald Sand). Mode ditentukan dari
+ * ada-tidaknya {@link #EXTRA_ID} pada Intent: ada → edit (prefill), tidak ada → tambah.
  *
  * <p>Menulis lewat {@link TaskListViewModel} (insert/update) — Activity tidak
- * pernah memanggil Repository langsung.</p>
+ * pernah memanggil Repository langsung. Status memakai segmented control
+ * (toggle group) yang index-nya paralel dengan {@link TaskStatus#VALUES}.</p>
  */
 public class TaskFormActivity extends BaseToolbarActivity {
 
@@ -59,7 +60,7 @@ public class TaskFormActivity extends BaseToolbarActivity {
     private TextInputEditText editTitle;
     private TextInputEditText editDescription;
     private TextView textSelectedDeadline;
-    private Spinner spinnerStatus;
+    private MaterialButtonToggleGroup toggleStatus;
     private MaterialSwitch switchPriority;
 
     private int editingId = 0;          // 0 = mode tambah
@@ -70,21 +71,14 @@ public class TaskFormActivity extends BaseToolbarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_form);
-        setupToolbar(0, true);
 
         editTitle = findViewById(R.id.editTitle);
         editDescription = findViewById(R.id.editDescription);
         textSelectedDeadline = findViewById(R.id.textSelectedDeadline);
-        spinnerStatus = findViewById(R.id.spinnerStatus);
+        toggleStatus = findViewById(R.id.toggleStatus);
         switchPriority = findViewById(R.id.switchPriority);
-        MaterialButton buttonPickDeadline = findViewById(R.id.buttonPickDeadline);
+        View buttonPickDeadline = findViewById(R.id.buttonPickDeadline);
         MaterialButton buttonSave = findViewById(R.id.buttonSave);
-
-        // Label status dari satu sumber kebenaran (TaskStatus), bukan string-array.
-        ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_item, TaskStatus.labels());
-        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerStatus.setAdapter(statusAdapter);
 
         viewModel = new ViewModelProvider(
                 this, new TaskListViewModelFactory(getApplication()))
@@ -99,11 +93,12 @@ public class TaskFormActivity extends BaseToolbarActivity {
     private void prefillIfEditing() {
         Intent intent = getIntent();
         if (!intent.hasExtra(EXTRA_ID)) {
-            setTitle(R.string.title_add_task);
-            spinnerStatus.setSelection(TaskStatus.indexOf(TaskStatus.NOT_STARTED));
+            setupHeader(R.string.title_add_task);
+            toggleStatus.check(statusButtonId(TaskStatus.indexOf(TaskStatus.NOT_STARTED)));
+            refreshDeadlineLabel();
             return;
         }
-        setTitle(R.string.title_edit_task);
+        setupHeader(R.string.title_edit_task);
         editingId = intent.getIntExtra(EXTRA_ID, 0);
         courseId = intent.getIntExtra(EXTRA_COURSE_ID, 0);
         editTitle.setText(intent.getStringExtra(EXTRA_TITLE));
@@ -112,7 +107,7 @@ public class TaskFormActivity extends BaseToolbarActivity {
                 intent.getIntExtra(EXTRA_PRIORITY, Task.PRIORITY_NORMAL) == Task.PRIORITY_HIGH);
 
         int statusIdx = TaskStatus.indexOf(intent.getStringExtra(EXTRA_STATUS));
-        spinnerStatus.setSelection(statusIdx >= 0 ? statusIdx : 0);
+        toggleStatus.check(statusButtonId(statusIdx >= 0 ? statusIdx : 0));
 
         selectedDeadline = intent.getLongExtra(EXTRA_DEADLINE, 0L);
         refreshDeadlineLabel();
@@ -162,7 +157,7 @@ public class TaskFormActivity extends BaseToolbarActivity {
                 ? "" : editDescription.getText().toString().trim();
         task.deadline = selectedDeadline;
         task.courseId = courseId;
-        task.status = TaskStatus.VALUES[spinnerStatus.getSelectedItemPosition()];
+        task.status = TaskStatus.VALUES[statusIndex()];
         task.priority = switchPriority.isChecked() ? Task.PRIORITY_HIGH : Task.PRIORITY_NORMAL;
         task.updatedAt = System.currentTimeMillis();
 
@@ -172,13 +167,35 @@ public class TaskFormActivity extends BaseToolbarActivity {
             viewModel.insert(task);
         }
 
-        // Tugas berdeadline butuh exact alarm agar pengingat tepat waktu. Di
-        // Android 12+ izin ini bisa belum aktif — tawarkan buka Setelan. Data
-        // sudah tersimpan; tanpa izin pun pengingat tetap jalan (inexact).
+        // Tugas berdeadline butuh exact alarm agar pengingat tepat waktu (Android 12+).
         if (needsExactAlarmConsent(task)) {
             promptExactAlarm();
         } else {
             finish();
+        }
+    }
+
+    /** Index status terpilih (paralel {@link TaskStatus#VALUES}). */
+    private int statusIndex() {
+        int id = toggleStatus.getCheckedButtonId();
+        if (id == R.id.btnStatusInProgress) {
+            return 1;
+        }
+        if (id == R.id.btnStatusDone) {
+            return 2;
+        }
+        return 0;
+    }
+
+    /** Id tombol toggle untuk index status. */
+    private int statusButtonId(int index) {
+        switch (index) {
+            case 1:
+                return R.id.btnStatusInProgress;
+            case 2:
+                return R.id.btnStatusDone;
+            default:
+                return R.id.btnStatusNotStarted;
         }
     }
 

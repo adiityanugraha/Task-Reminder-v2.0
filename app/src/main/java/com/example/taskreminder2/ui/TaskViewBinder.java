@@ -1,7 +1,10 @@
 package com.example.taskreminder2.ui;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Paint;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
@@ -10,6 +13,7 @@ import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.Task;
 import com.example.taskreminder2.util.DateTimeFormatter;
 import com.example.taskreminder2.util.OverdueChecker;
+import com.example.taskreminder2.util.TaskStatus;
 import com.google.android.material.card.MaterialCardView;
 
 /**
@@ -62,6 +66,51 @@ public final class TaskViewBinder {
         } else {
             badge.setVisibility(View.GONE);
             card.setStrokeWidth(0);
+        }
+    }
+
+    /**
+     * Mewarnai kotak ikon item tugas (desain Emerald Sand) sesuai keadaan:
+     * terlambat → merah, selesai → abu (ikon centang), prioritas → oranye,
+     * lainnya → emerald. Di-set eksplisit tiap bind agar aman saat daur ulang.
+     */
+    public static void bindIconBox(View iconBox, ImageView icon,
+                                   long deadline, String status, int priority) {
+        Context ctx = iconBox.getContext();
+        int bg;
+        int tint;
+        int iconRes = R.drawable.ic_task;
+        if (OverdueChecker.isOverdue(deadline, status)) {
+            bg = R.color.es_priority_bg;
+            tint = R.color.es_overdue;
+        } else if (TaskStatus.DONE.equals(status)) {
+            bg = R.color.es_surface_done;
+            tint = R.color.es_text_muted;
+            iconRes = R.drawable.ic_check;
+        } else if (priority == Task.PRIORITY_HIGH) {
+            bg = R.color.es_accent_orange_container;
+            tint = R.color.es_accent_orange;
+        } else {
+            bg = R.color.es_primary_container;
+            tint = R.color.es_primary;
+        }
+        iconBox.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(ctx, bg)));
+        icon.setImageResource(iconRes);
+        icon.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(ctx, tint)));
+    }
+
+    /**
+     * Judul tugas selesai ditampilkan dicoret + redup; selainnya normal.
+     * Reset eksplisit penting karena ViewHolder didaur ulang.
+     */
+    public static void bindTitleState(TextView title, String status) {
+        Context ctx = title.getContext();
+        if (TaskStatus.DONE.equals(status)) {
+            title.setPaintFlags(title.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            title.setTextColor(ContextCompat.getColor(ctx, R.color.es_text_muted));
+        } else {
+            title.setPaintFlags(title.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+            title.setTextColor(ContextCompat.getColor(ctx, R.color.es_text_primary));
         }
     }
 

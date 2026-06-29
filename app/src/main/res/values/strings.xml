@@ -6,6 +6,15 @@
     <string name="empty_filtered">Tidak ada tugas yang cocok.</string>
     <string name="cd_add_task">Tambah tugas</string>
 
+    <!-- Beranda (redesign Emerald Sand) -->
+    <string name="header_tasks_title">Tugas</string>
+    <string name="nav_home">Beranda</string>
+    <string name="coming_soon">Segera hadir</string>
+    <string name="cd_app_badge">Task Reminder</string>
+    <string name="cd_calendar">Kalender</string>
+    <string name="cd_checklist">Checklist</string>
+    <string name="cd_profile">Profil / Team Mode</string>
+
     <!-- Pencarian & filter (Fitur-03) -->
     <string name="hint_search">Cari judul tugas…</string>
     <string name="filter_all">Semua</string>
@@ -24,6 +33,13 @@
     <string name="label_priority_high">Prioritas Tinggi</string>
     <string name="button_save">Simpan</string>
     <string name="error_title_required">Judul wajib diisi</string>
+    <!-- Form redesign (Emerald Sand) -->
+    <string name="form_label_title">Judul Tugas</string>
+    <string name="form_label_description">Deskripsi</string>
+    <string name="status_not_started">Belum Mulai</string>
+    <string name="status_in_progress">Dikerjakan</string>
+    <string name="status_done">Selesai</string>
+    <string name="priority_subtitle">Tandai sebagai mendesak</string>
 
     <!-- Detail tugas & riwayat -->
     <string name="action_edit">Edit</string>

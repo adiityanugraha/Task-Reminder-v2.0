@@ -1,7 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Tema dasar aplikasi (Material Design 3). -->
-    <style name="Theme.TaskReminder2" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Kustomisasi warna ditambahkan belakangan saat layar dibangun. -->
+
+    <!-- Tema aplikasi — palet "Emerald Sand" (Material Design 3, light-only).
+         Desain bertema terang/hangat, jadi parent Light (bukan DayNight) agar
+         mode gelap tidak membalik warna pasir. -->
+    <style name="Theme.TaskReminder2" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/es_primary</item>
+        <item name="colorOnPrimary">@color/es_on_primary</item>
+        <item name="colorPrimaryContainer">@color/es_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/es_on_primary_container</item>
+
+        <item name="colorSecondary">@color/es_accent_orange</item>
+        <item name="colorOnSecondary">@color/es_on_primary</item>
+
+        <item name="colorSurface">@color/es_surface</item>
+        <item name="colorOnSurface">@color/es_text_primary</item>
+        <item name="colorSurfaceVariant">@color/es_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/es_text_secondary</item>
+        <item name="android:colorBackground">@color/es_background</item>
+        <item name="colorOnBackground">@color/es_text_primary</item>
+
+        <item name="colorOutline">@color/es_border</item>
+        <item name="colorOutlineVariant">@color/es_divider</item>
+        <item name="colorError">@color/es_priority</item>
+
+        <!-- System bars menyatu dengan latar pasir -->
+        <item name="android:statusBarColor">@color/es_background</item>
+        <item name="android:navigationBarColor">@color/es_background</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+
+        <!-- Tipografi: Plus Jakarta Sans (Downloadable Font). Aktif di API 26+;
+             di bawah itu fallback ke font sistem. -->
+        <item name="android:fontFamily">@font/plus_jakarta_sans</item>
+        <item name="fontFamily">@font/plus_jakarta_sans</item>
+
+        <!-- Bentuk membulat ala desain -->
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.ES.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.ES.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.ES.Large</item>
+    </style>
+
+    <style name="ShapeAppearance.ES.Small" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">14dp</item>
+    </style>
+    <style name="ShapeAppearance.ES.Medium" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">18dp</item>
+    </style>
+    <style name="ShapeAppearance.ES.Large" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">26dp</item>
     </style>
 </resources>

@@ -1,8 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#1565C0</color>
-    <!-- Penanda prioritas tinggi (Fitur-06). -->
-    <color name="priority_high">#D32F2F</color>
-    <!-- Penanda tugas terlambat (Fitur-08). -->
-    <color name="overdue">#D32F2F</color>
+    <color name="ic_launcher_background">#1F7A5A</color>
+
+    <!-- ===== Palet "Emerald Sand" (desain Claude Design) ===== -->
+    <!-- Primary -->
+    <color name="es_primary">#1F7A5A</color>
+    <color name="es_primary_dark">#196347</color>
+    <color name="es_on_primary">#FFFFFF</color>
+    <color name="es_primary_container">#D6E6CF</color>
+    <color name="es_on_primary_container">#1F7A5A</color>
+
+    <!-- Surface & background -->
+    <color name="es_background">#F4F1E9</color>
+    <color name="es_surface">#FFFFFF</color>
+    <color name="es_surface_variant">#EFEBE1</color>
+    <color name="es_surface_done">#E3DDCF</color>
+
+    <!-- Teks -->
+    <color name="es_text_primary">#23271C</color>
+    <color name="es_text_secondary">#8B8979</color>
+    <color name="es_text_muted">#ABA899</color>
+
+    <!-- Garis -->
+    <color name="es_border">#E6E0D2</color>
+    <color name="es_divider">#ECE6D8</color>
+
+    <!-- Status / aksen -->
+    <color name="es_priority">#C0392B</color>
+    <color name="es_overdue">#B5524A</color>
+    <color name="es_accent_orange">#C4622E</color>
+    <color name="es_accent_orange_container">#EBD3BF</color>
+    <color name="es_accent_orange_bg">#F4E7DB</color>
+    <color name="es_accent_yellow">#B9890C</color>
+    <color name="es_accent_yellow_container">#F2E0AE</color>
+    <color name="es_accent_yellow_bg">#FBF1D6</color>
+    <color name="es_priority_bg">#F4E6E3</color>
+
+    <!-- Alias lama (dipakai item_task/adapter & util) — diarahkan ke palet baru. -->
+    <color name="priority_high">#C0392B</color>
+    <color name="overdue">#B5524A</color>
 </resources>

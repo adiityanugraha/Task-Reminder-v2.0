@@ -6,60 +6,91 @@
     android:id="@+id/cardTask"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="12dp"
-    android:layout_marginVertical="6dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    android:layout_marginHorizontal="20dp"
+    android:layout_marginVertical="5dp"
+    android:checkable="false"
+    app:cardBackgroundColor="@color/es_surface"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="1dp"
+    app:rippleColor="@color/es_primary_container">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="14dp">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/textTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                tools:text="Mengerjakan laporan akhir" />
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/textPriorityBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="8dp"
+                android:layout_marginBottom="5dp"
                 android:background="@drawable/bg_priority_badge"
                 android:paddingHorizontal="8dp"
-                android:paddingVertical="2dp"
+                android:paddingVertical="3dp"
                 android:text="@string/label_priority_high"
-                android:textAppearance="?attr/textAppearanceLabelSmall"
                 android:textColor="@android:color/white"
+                android:textSize="9sp"
+                android:textStyle="bold"
                 android:visibility="gone"
                 tools:visibility="visible" />
 
+            <TextView
+                android:id="@+id/textTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/es_text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                tools:text="Laporan Praktikum" />
+
+            <TextView
+                android:id="@+id/textDeadline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:textColor="@color/es_text_secondary"
+                android:textSize="12sp"
+                tools:text="10 Jul 2026, 23.59" />
+
+            <TextView
+                android:id="@+id/textStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:textColor="@color/es_text_secondary"
+                android:textSize="12sp"
+                tools:text="Fisika · Dikerjakan" />
+
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textDeadline"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAppearance="?attr/textAppearanceBodySmall" />
+        <FrameLayout
+            android:id="@+id/iconBox"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:layout_marginStart="12dp"
+            android:background="@drawable/bg_icon_box"
+            android:backgroundTint="@color/es_primary_container">
 
-        <TextView
-            android:id="@+id/textStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAppearance="?attr/textAppearanceLabelMedium" />
+            <ImageView
+                android:id="@+id/imageIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_task"
+                app:tint="@color/es_primary" />
+
+        </FrameLayout>
 
     </LinearLayout>
 

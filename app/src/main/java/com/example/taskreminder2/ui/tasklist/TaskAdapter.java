@@ -3,6 +3,7 @@ package com.example.taskreminder2.ui.tasklist;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -77,6 +78,8 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
         private final TextView textDeadline;
         private final TextView textStatus;
         private final TextView textPriorityBadge;
+        private final View iconBox;
+        private final ImageView imageIcon;
         private final int defaultDeadlineColor;
 
         TaskViewHolder(@NonNull View itemView) {
@@ -86,6 +89,8 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
             textDeadline = itemView.findViewById(R.id.textDeadline);
             textStatus = itemView.findViewById(R.id.textStatus);
             textPriorityBadge = itemView.findViewById(R.id.textPriorityBadge);
+            iconBox = itemView.findViewById(R.id.iconBox);
+            imageIcon = itemView.findViewById(R.id.imageIcon);
             // Simpan warna asli untuk dipulihkan saat tugas tidak terlambat.
             defaultDeadlineColor = textDeadline.getCurrentTextColor();
 
@@ -107,6 +112,8 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
 
         void bind(Task task) {
             textTitle.setText(task.title);
+            // Judul dicoret + redup bila selesai.
+            TaskViewBinder.bindTitleState(textTitle, task.status);
 
             // Fitur-08: status terlambat dihitung saat render (read-only).
             TaskViewBinder.bindDeadline(textDeadline, task, defaultDeadlineColor);
@@ -115,6 +122,9 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
 
             // Fitur-06: penanda visual prioritas tinggi.
             TaskViewBinder.bindPriority(card, textPriorityBadge, task.priority);
+
+            // Kotak ikon berwarna sesuai keadaan (desain Emerald Sand).
+            TaskViewBinder.bindIconBox(iconBox, imageIcon, task.deadline, task.status, task.priority);
         }
     }
 }
