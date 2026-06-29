@@ -4,11 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.PopupMenu;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -64,7 +62,13 @@ public class TeamTasksActivity extends BaseToolbarActivity
                 getIntent().getStringExtra(EXTRA_TEAM_CODE),
                 getIntent().getStringExtra(EXTRA_OWNER_ID));
         ((TextView) findViewById(R.id.textHeaderTitle)).setText(team.name);
-        setupHeaderMenu();
+        setupHeaderMenu(R.menu.menu_team_tasks, item -> {
+            if (item.getItemId() == R.id.action_manage_team) {
+                ManageTeamActivity.start(this, team);
+                return true;
+            }
+            return false;
+        });
 
         textEmpty = findViewById(R.id.textEmpty);
         TextInputEditText editSearch = findViewById(R.id.editSearch);
@@ -143,25 +147,4 @@ public class TeamTasksActivity extends BaseToolbarActivity
                 .show();
     }
 
-    /** Tombol aksi (titik tiga) di header → menu "Kelola Team". */
-    private void setupHeaderMenu() {
-        View action = findViewById(R.id.btnHeaderAction);
-        ImageView icon = findViewById(R.id.imageHeaderAction);
-        icon.setVisibility(View.VISIBLE);
-        action.setClickable(true);
-        action.setOnClickListener(this::showMenu);
-    }
-
-    private void showMenu(View anchor) {
-        PopupMenu menu = new PopupMenu(this, anchor);
-        menu.getMenuInflater().inflate(R.menu.menu_team_tasks, menu.getMenu());
-        menu.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_manage_team) {
-                ManageTeamActivity.start(this, team);
-                return true;
-            }
-            return false;
-        });
-        menu.show();
-    }
 }

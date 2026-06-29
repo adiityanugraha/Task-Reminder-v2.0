@@ -16,6 +16,7 @@ import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.Task;
 import com.example.taskreminder2.notification.AlarmReminderScheduler;
 import com.example.taskreminder2.ui.BaseToolbarActivity;
+import com.example.taskreminder2.ui.StatusToggle;
 import com.example.taskreminder2.util.DateTimeFormatter;
 import com.example.taskreminder2.util.TaskStatus;
 import com.google.android.material.button.MaterialButton;
@@ -94,7 +95,7 @@ public class TaskFormActivity extends BaseToolbarActivity {
         Intent intent = getIntent();
         if (!intent.hasExtra(EXTRA_ID)) {
             setupHeader(R.string.title_add_task);
-            toggleStatus.check(statusButtonId(TaskStatus.indexOf(TaskStatus.NOT_STARTED)));
+            toggleStatus.check(StatusToggle.buttonId(TaskStatus.indexOf(TaskStatus.NOT_STARTED)));
             refreshDeadlineLabel();
             return;
         }
@@ -107,7 +108,7 @@ public class TaskFormActivity extends BaseToolbarActivity {
                 intent.getIntExtra(EXTRA_PRIORITY, Task.PRIORITY_NORMAL) == Task.PRIORITY_HIGH);
 
         int statusIdx = TaskStatus.indexOf(intent.getStringExtra(EXTRA_STATUS));
-        toggleStatus.check(statusButtonId(statusIdx >= 0 ? statusIdx : 0));
+        toggleStatus.check(StatusToggle.buttonId(statusIdx >= 0 ? statusIdx : 0));
 
         selectedDeadline = intent.getLongExtra(EXTRA_DEADLINE, 0L);
         refreshDeadlineLabel();
@@ -157,7 +158,7 @@ public class TaskFormActivity extends BaseToolbarActivity {
                 ? "" : editDescription.getText().toString().trim();
         task.deadline = selectedDeadline;
         task.courseId = courseId;
-        task.status = TaskStatus.VALUES[statusIndex()];
+        task.status = TaskStatus.VALUES[StatusToggle.indexOf(toggleStatus)];
         task.priority = switchPriority.isChecked() ? Task.PRIORITY_HIGH : Task.PRIORITY_NORMAL;
         task.updatedAt = System.currentTimeMillis();
 
@@ -172,30 +173,6 @@ public class TaskFormActivity extends BaseToolbarActivity {
             promptExactAlarm();
         } else {
             finish();
-        }
-    }
-
-    /** Index status terpilih (paralel {@link TaskStatus#VALUES}). */
-    private int statusIndex() {
-        int id = toggleStatus.getCheckedButtonId();
-        if (id == R.id.btnStatusInProgress) {
-            return 1;
-        }
-        if (id == R.id.btnStatusDone) {
-            return 2;
-        }
-        return 0;
-    }
-
-    /** Id tombol toggle untuk index status. */
-    private int statusButtonId(int index) {
-        switch (index) {
-            case 1:
-                return R.id.btnStatusInProgress;
-            case 2:
-                return R.id.btnStatusDone;
-            default:
-                return R.id.btnStatusNotStarted;
         }
     }
 

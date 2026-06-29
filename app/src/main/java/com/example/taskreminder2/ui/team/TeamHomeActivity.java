@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,7 +40,12 @@ public class TeamHomeActivity extends BaseToolbarActivity implements TeamAdapter
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_team_home);
         setupHeader(R.string.title_team_home);
-        setupLogoutAction();
+        setupHeaderAction(R.drawable.ic_logout, v -> {
+            // Logout → hentikan polling Team (tak ada user yang dipantau).
+            TeamSyncWorker.cancel(this);
+            authViewModel.logout();
+            finish();
+        });
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
         teamViewModel = new ViewModelProvider(this).get(TeamViewModel.class);
@@ -125,18 +129,4 @@ public class TeamHomeActivity extends BaseToolbarActivity implements TeamAdapter
         TeamTasksActivity.start(this, team);
     }
 
-    /** Tombol logout di slot aksi header (desain Emerald Sand). */
-    private void setupLogoutAction() {
-        View action = findViewById(R.id.btnHeaderAction);
-        ImageView icon = findViewById(R.id.imageHeaderAction);
-        icon.setImageResource(R.drawable.ic_logout);
-        icon.setVisibility(View.VISIBLE);
-        action.setClickable(true);
-        action.setOnClickListener(v -> {
-            // Logout → hentikan polling Team (tak ada user yang dipantau).
-            TeamSyncWorker.cancel(this);
-            authViewModel.logout();
-            finish();
-        });
-    }
 }

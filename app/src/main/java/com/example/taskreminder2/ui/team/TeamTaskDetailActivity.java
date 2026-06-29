@@ -6,11 +6,9 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.PopupMenu;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -62,7 +60,7 @@ public class TeamTaskDetailActivity extends BaseToolbarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_detail);
         setupHeader(R.string.title_detail);
-        setupHeaderMenu();
+        setupHeaderMenu(R.menu.menu_team_task_detail, this::onMenuItem);
 
         teamId = getIntent().getStringExtra(EXTRA_TEAM_ID);
         String taskId = getIntent().getStringExtra(EXTRA_TASK_ID);
@@ -141,35 +139,22 @@ public class TeamTaskDetailActivity extends BaseToolbarActivity {
         Toast.makeText(this, R.string.note_added, Toast.LENGTH_SHORT).show();
     }
 
-    /** Aktifkan tombol aksi (titik tiga) di header → menu Edit/Hapus. */
-    private void setupHeaderMenu() {
-        View action = findViewById(R.id.btnHeaderAction);
-        ImageView icon = findViewById(R.id.imageHeaderAction);
-        icon.setVisibility(View.VISIBLE);
-        action.setClickable(true);
-        action.setOnClickListener(this::showMenu);
-    }
-
-    private void showMenu(View anchor) {
-        PopupMenu menu = new PopupMenu(this, anchor);
-        menu.getMenuInflater().inflate(R.menu.menu_team_task_detail, menu.getMenu());
-        menu.setOnMenuItemClickListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.action_edit) {
-                if (currentTask != null) {
-                    TeamTaskFormActivity.start(this, teamId, currentTask);
-                }
-                return true;
+    /** Handler menu header (Edit/Hapus). */
+    private boolean onMenuItem(android.view.MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_edit) {
+            if (currentTask != null) {
+                TeamTaskFormActivity.start(this, teamId, currentTask);
             }
-            if (id == R.id.action_delete) {
-                if (currentTask != null) {
-                    viewModel.delete();
-                    finish();
-                }
-                return true;
+            return true;
+        }
+        if (id == R.id.action_delete) {
+            if (currentTask != null) {
+                viewModel.delete();
+                finish();
             }
-            return false;
-        });
-        menu.show();
+            return true;
+        }
+        return false;
     }
 }

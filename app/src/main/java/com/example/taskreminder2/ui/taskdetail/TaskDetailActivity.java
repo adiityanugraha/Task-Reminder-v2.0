@@ -4,13 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.PopupMenu;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -61,7 +58,7 @@ public class TaskDetailActivity extends BaseToolbarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_detail);
         setupHeader(R.string.title_detail);
-        setupHeaderMenu();
+        setupHeaderMenu(R.menu.menu_task_detail, this::onMenuItem);
 
         textTitle = findViewById(R.id.textDetailTitle);
         textStatusLabel = findViewById(R.id.textDetailStatusLabel);
@@ -145,35 +142,22 @@ public class TaskDetailActivity extends BaseToolbarActivity {
         Toast.makeText(this, R.string.note_added, Toast.LENGTH_SHORT).show();
     }
 
-    /** Aktifkan tombol aksi (titik tiga) di header → menu Edit/Hapus. */
-    private void setupHeaderMenu() {
-        View action = findViewById(R.id.btnHeaderAction);
-        ImageView icon = findViewById(R.id.imageHeaderAction);
-        icon.setVisibility(View.VISIBLE);
-        action.setClickable(true);
-        action.setOnClickListener(this::showMenu);
-    }
-
-    private void showMenu(View anchor) {
-        PopupMenu menu = new PopupMenu(this, anchor);
-        menu.getMenuInflater().inflate(R.menu.menu_task_detail, menu.getMenu());
-        menu.setOnMenuItemClickListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.action_edit) {
-                if (currentTask != null) {
-                    Intent intent = new Intent(this, TaskFormActivity.class);
-                    TaskFormActivity.putTaskExtras(intent, currentTask);
-                    startActivity(intent);
-                }
-                return true;
+    /** Handler menu header (Edit/Hapus). */
+    private boolean onMenuItem(android.view.MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_edit) {
+            if (currentTask != null) {
+                Intent intent = new Intent(this, TaskFormActivity.class);
+                TaskFormActivity.putTaskExtras(intent, currentTask);
+                startActivity(intent);
             }
-            if (id == R.id.action_delete) {
-                confirmDelete();
-                return true;
-            }
-            return false;
-        });
-        menu.show();
+            return true;
+        }
+        if (id == R.id.action_delete) {
+            confirmDelete();
+            return true;
+        }
+        return false;
     }
 
     private void confirmDelete() {

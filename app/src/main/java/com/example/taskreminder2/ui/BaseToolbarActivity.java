@@ -1,10 +1,14 @@
 package com.example.taskreminder2.ui;
 
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
+import androidx.annotation.MenuRes;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
 
 import com.example.taskreminder2.R;
 
@@ -33,6 +37,35 @@ public abstract class BaseToolbarActivity extends AppCompatActivity {
                 title.setText(titleRes);
             }
         }
+    }
+
+    /**
+     * Aktifkan slot aksi kanan di header dengan ikon + handler klik.
+     * Aman bila layar tak punya header (findViewById null diabaikan).
+     */
+    protected void setupHeaderAction(@DrawableRes int iconRes, View.OnClickListener onClick) {
+        View action = findViewById(R.id.btnHeaderAction);
+        ImageView icon = findViewById(R.id.imageHeaderAction);
+        if (action == null || icon == null) {
+            return;
+        }
+        icon.setImageResource(iconRes);
+        icon.setVisibility(View.VISIBLE);
+        action.setClickable(true);
+        action.setOnClickListener(onClick);
+    }
+
+    /**
+     * Aktifkan slot aksi header sebagai tombol overflow (titik tiga) yang
+     * membuka {@link PopupMenu} dari {@code menuRes}.
+     */
+    protected void setupHeaderMenu(@MenuRes int menuRes, PopupMenu.OnMenuItemClickListener listener) {
+        setupHeaderAction(R.drawable.ic_more, anchor -> {
+            PopupMenu menu = new PopupMenu(this, anchor);
+            menu.getMenuInflater().inflate(menuRes, menu.getMenu());
+            menu.setOnMenuItemClickListener(listener);
+            menu.show();
+        });
     }
 
     @Override
