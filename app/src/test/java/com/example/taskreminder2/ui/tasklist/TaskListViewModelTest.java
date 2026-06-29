@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer;
 
 import com.example.taskreminder2.data.local.entity.Task;
 import com.example.taskreminder2.data.repository.TaskRepository;
+import com.example.taskreminder2.ui.TaskQuery;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -49,25 +50,25 @@ public class TaskListViewModelTest {
 
     @Test
     public void priorityFilterSwitchesSource() {
-        vm.setQuery(TaskListViewModel.Filter.PRIORITY_HIGH, null);
+        vm.setQuery(new TaskQuery(TaskQuery.Filter.PRIORITY_HIGH, null));
         assertEquals("prio", firstTitle(vm.getTasks()));
     }
 
     @Test
     public void overdueFilterSwitchesSource() {
-        vm.setQuery(TaskListViewModel.Filter.OVERDUE, null);
+        vm.setQuery(new TaskQuery(TaskQuery.Filter.OVERDUE, null));
         assertEquals("late", firstTitle(vm.getTasks()));
     }
 
     @Test
     public void searchTakesPrecedenceOverFilter() {
-        vm.setQuery(TaskListViewModel.Filter.PRIORITY_HIGH, "kw");
+        vm.setQuery(new TaskQuery(TaskQuery.Filter.PRIORITY_HIGH, "kw"));
         assertEquals("found", firstTitle(vm.getTasks()));
     }
 
     @Test
     public void blankKeywordFallsBackToFilter() {
-        vm.setQuery(TaskListViewModel.Filter.PRIORITY_HIGH, "   ");
+        vm.setQuery(new TaskQuery(TaskQuery.Filter.PRIORITY_HIGH, "   "));
         assertEquals("prio", firstTitle(vm.getTasks()));
     }
 

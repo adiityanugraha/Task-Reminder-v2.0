@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 import com.example.taskreminder2.data.local.entity.Task;
 import com.example.taskreminder2.data.model.TeamTask;
 import com.example.taskreminder2.data.repository.TeamTaskRepository;
+import com.example.taskreminder2.ui.TaskQuery;
 import com.example.taskreminder2.util.OverdueChecker;
 import com.google.firebase.firestore.ListenerRegistration;
 
@@ -22,24 +23,13 @@ import java.util.List;
  */
 public class TeamTaskViewModel extends ViewModel {
 
-    public enum Filter { ALL, PRIORITY_HIGH, OVERDUE }
-
-    private static final class Query {
-        final Filter filter;
-        final String keyword;
-
-        Query(Filter filter, String keyword) {
-            this.filter = filter;
-            this.keyword = keyword;
-        }
-    }
-
     private final TeamTaskRepository repo;
     private final String teamId;
     private final ListenerRegistration registration;
 
     private final MutableLiveData<List<TeamTask>> rawTasks = new MutableLiveData<>();
-    private final MutableLiveData<Query> query = new MutableLiveData<>(new Query(Filter.ALL, null));
+    private final MutableLiveData<TaskQuery> query =
+            new MutableLiveData<>(new TaskQuery(TaskQuery.Filter.ALL, null));
     private final MediatorLiveData<List<TeamTask>> filteredTasks = new MediatorLiveData<>();
     private final MutableLiveData<String> message = new MutableLiveData<>();
 
@@ -63,8 +53,8 @@ public class TeamTaskViewModel extends ViewModel {
         return message;
     }
 
-    public void setQuery(Filter filter, String keyword) {
-        query.setValue(new Query(filter, keyword));
+    public void setQuery(TaskQuery query) {
+        this.query.setValue(query);
     }
 
     public void deleteTask(TeamTask task) {
@@ -80,24 +70,24 @@ public class TeamTaskViewModel extends ViewModel {
     }
 
     /** Filter di memori: keyword (judul) diprioritaskan; selain itu pakai filter. */
-    private static List<TeamTask> applyFilter(List<TeamTask> all, Query q) {
+    private static List<TeamTask> applyFilter(List<TeamTask> all, TaskQuery q) {
         List<TeamTask> result = new ArrayList<>();
         if (all == null) {
             return result;
         }
-        Query query = q != null ? q : new Query(Filter.ALL, null);
-        String kw = query.keyword == null ? "" : query.keyword.trim().toLowerCase();
+        TaskQuery query = q != null ? q : new TaskQuery(TaskQuery.Filter.ALL, null);
+        String kw = query.trimmedKeyword().toLowerCase();
         long now = System.currentTimeMillis();
         for (TeamTask t : all) {
             if (!kw.isEmpty()) {
                 if (t.title == null || !t.title.toLowerCase().contains(kw)) {
                     continue;
                 }
-            } else if (query.filter == Filter.PRIORITY_HIGH) {
+            } else if (query.filter == TaskQuery.Filter.PRIORITY_HIGH) {
                 if (t.priority != Task.PRIORITY_HIGH) {
                     continue;
                 }
-            } else if (query.filter == Filter.OVERDUE) {
+            } else if (query.filter == TaskQuery.Filter.OVERDUE) {
                 if (!OverdueChecker.isOverdue(t.deadline, t.status, now)) {
                     continue;
                 }

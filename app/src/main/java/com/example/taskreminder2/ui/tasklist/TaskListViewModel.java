@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.taskreminder2.data.local.entity.Task;
 import com.example.taskreminder2.data.repository.TaskRepository;
+import com.example.taskreminder2.ui.TaskQuery;
 
 import java.util.List;
 
@@ -14,34 +15,21 @@ import java.util.List;
  * ViewModel layar daftar tugas (Personal Mode).
  *
  * <p>Daftar tugas yang diekspos bersifat dinamis (Fitur-03): sebuah trigger
- * {@code query} di-{@code switchMap} ke sumber {@link LiveData} yang sesuai
+ * {@link TaskQuery} di-{@code switchMap} ke sumber {@link LiveData} yang sesuai
  * (semua / cari judul / prioritas / terlambat). Mengubah filter cukup
  * mengganti nilai trigger — Room menyediakan LiveData baru, UI ikut otomatis.</p>
  */
 public class TaskListViewModel extends ViewModel {
 
-    /** Mode filter. Pencarian judul ditangani lewat keyword terpisah. */
-    public enum Filter { ALL, PRIORITY_HIGH, OVERDUE }
-
-    private static final class Query {
-        final Filter filter;
-        final String keyword;
-
-        Query(Filter filter, String keyword) {
-            this.filter = filter;
-            this.keyword = keyword;
-        }
-    }
-
     private final TaskRepository repository;
-    private final MutableLiveData<Query> query = new MutableLiveData<>();
+    private final MutableLiveData<TaskQuery> query = new MutableLiveData<>();
     private final LiveData<List<Task>> tasks;
 
     public TaskListViewModel(TaskRepository repository) {
         this.repository = repository;
         this.tasks = Transformations.switchMap(query, q -> {
-            if (q.keyword != null && !q.keyword.trim().isEmpty()) {
-                return repository.searchByTitle(q.keyword.trim());
+            if (q.hasKeyword()) {
+                return repository.searchByTitle(q.trimmedKeyword());
             }
             switch (q.filter) {
                 case PRIORITY_HIGH:
@@ -53,7 +41,7 @@ public class TaskListViewModel extends ViewModel {
                     return repository.getAllTasks();
             }
         });
-        query.setValue(new Query(Filter.ALL, null));
+        query.setValue(new TaskQuery(TaskQuery.Filter.ALL, null));
     }
 
     public LiveData<List<Task>> getTasks() {
@@ -61,11 +49,11 @@ public class TaskListViewModel extends ViewModel {
     }
 
     /**
-     * Memperbarui kriteria tampilan. Jika {@code keyword} tidak kosong,
-     * pencarian judul diprioritaskan; selain itu memakai {@code filter}.
+     * Memperbarui kriteria tampilan. Jika kata kunci tidak kosong, pencarian
+     * judul diprioritaskan; selain itu memakai filter.
      */
-    public void setQuery(Filter filter, String keyword) {
-        query.setValue(new Query(filter, keyword));
+    public void setQuery(TaskQuery query) {
+        this.query.setValue(query);
     }
 
     public void insert(Task task) {

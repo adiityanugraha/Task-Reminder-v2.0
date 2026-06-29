@@ -2,8 +2,6 @@ package com.example.taskreminder2.ui.tasklist;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -17,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.local.entity.Task;
 import com.example.taskreminder2.ui.BaseToolbarActivity;
+import com.example.taskreminder2.ui.SearchFilterBinder;
 import com.example.taskreminder2.ui.taskdetail.TaskDetailActivity;
 import com.example.taskreminder2.ui.team.LoginActivity;
 import com.google.android.material.chip.ChipGroup;
@@ -31,8 +30,6 @@ public class TaskListActivity extends BaseToolbarActivity
         implements TaskAdapter.OnTaskInteractionListener {
 
     private TaskListViewModel viewModel;
-    private TextInputEditText editSearch;
-    private ChipGroup chipGroup;
     private TextView textEmpty;
     private boolean filtering;
 
@@ -44,8 +41,8 @@ public class TaskListActivity extends BaseToolbarActivity
 
         RecyclerView recycler = findViewById(R.id.recyclerTasks);
         textEmpty = findViewById(R.id.textEmpty);
-        editSearch = findViewById(R.id.editSearch);
-        chipGroup = findViewById(R.id.chipGroupFilter);
+        TextInputEditText editSearch = findViewById(R.id.editSearch);
+        ChipGroup chipGroup = findViewById(R.id.chipGroupFilter);
         FloatingActionButton fabAdd = findViewById(R.id.fabAdd);
 
         recycler.setLayoutManager(new LinearLayoutManager(this));
@@ -63,43 +60,13 @@ public class TaskListActivity extends BaseToolbarActivity
             textEmpty.setVisibility(empty ? TextView.VISIBLE : TextView.GONE);
         });
 
-        editSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                applyQuery();
-            }
+        SearchFilterBinder.bind(editSearch, chipGroup, query -> {
+            filtering = query.isFiltering();
+            viewModel.setQuery(query);
         });
-
-        chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> applyQuery());
 
         fabAdd.setOnClickListener(v ->
                 startActivity(new Intent(this, TaskFormActivity.class)));
-    }
-
-    /** Menyusun kriteria dari search box + chip terpilih, kirim ke ViewModel. */
-    private void applyQuery() {
-        String keyword = editSearch.getText() == null ? "" : editSearch.getText().toString().trim();
-
-        TaskListViewModel.Filter filter;
-        int checked = chipGroup.getCheckedChipId();
-        if (checked == R.id.chipPriority) {
-            filter = TaskListViewModel.Filter.PRIORITY_HIGH;
-        } else if (checked == R.id.chipOverdue) {
-            filter = TaskListViewModel.Filter.OVERDUE;
-        } else {
-            filter = TaskListViewModel.Filter.ALL;
-        }
-
-        filtering = !keyword.isEmpty() || filter != TaskListViewModel.Filter.ALL;
-        viewModel.setQuery(filter, keyword);
     }
 
     @Override
