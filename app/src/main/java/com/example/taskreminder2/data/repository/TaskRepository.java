@@ -81,6 +81,26 @@ public class TaskRepository {
         return taskDao.filterOverdue(now);
     }
 
+    /**
+     * Ambil semua tugas secara sinkron (bukan LiveData). HANYA dipanggil dari
+     * thread background (mis. {@code BootReceiver}), tidak dari UI.
+     */
+    public List<Task> getAllTasksSync() {
+        return taskDao.getAllTasksSync();
+    }
+
+    /**
+     * Jadwalkan ulang seluruh pengingat — dipakai {@code BootReceiver} setelah
+     * reboot karena AlarmManager kehilangan semua alarm saat perangkat mati.
+     * {@code schedule()} per task otomatis melewati yang tak relevan (tanpa
+     * deadline / sudah lewat / selesai). Sinkron: panggil dari background.
+     */
+    public void rescheduleAllReminders() {
+        for (Task task : taskDao.getAllTasksSync()) {
+            reminderScheduler.schedule(task);
+        }
+    }
+
     public void insert(Task task) {
         io.execute(() -> {
             long id = taskDao.insert(task);

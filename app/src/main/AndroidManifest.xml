@@ -73,6 +73,15 @@
             android:name=".notification.AlarmReceiver"
             android:exported="false" />
 
+        <!-- Jadwalkan ulang alarm setelah reboot (Fitur-07, Day 26) -->
+        <receiver
+            android:name=".notification.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

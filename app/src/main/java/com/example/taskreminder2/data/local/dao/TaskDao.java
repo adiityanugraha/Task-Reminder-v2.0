@@ -33,6 +33,11 @@ public interface TaskDao {
     @Query("SELECT * FROM tasks ORDER BY deadline ASC")
     LiveData<List<Task>> getAllTasks();
 
+    /** Non-LiveData: dipanggil dari background untuk menjadwalkan ulang seluruh
+     *  alarm setelah reboot (Day 26 / Fitur-07). */
+    @Query("SELECT * FROM tasks")
+    List<Task> getAllTasksSync();
+
     // --- Fitur-03: pencarian & filter ---
 
     @Query("SELECT * FROM tasks WHERE title LIKE '%' || :keyword || '%' ORDER BY deadline ASC")

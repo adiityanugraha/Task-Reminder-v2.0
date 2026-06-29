@@ -93,6 +93,20 @@ public class TaskRepositoryTest {
         verify(scheduler).cancel(5);
     }
 
+    @Test
+    public void rescheduleAllReminders_schedulesEveryTask() {
+        Task a = task("A", "", 0, 0, TaskStatus.NOT_STARTED);
+        Task b = task("B", "", 0, 0, TaskStatus.NOT_STARTED);
+        when(dao.getAllTasksSync()).thenReturn(java.util.Arrays.asList(a, b));
+
+        repo.rescheduleAllReminders();
+
+        // Penyaringan task tak-relevan ada di scheduler; Repository cukup
+        // meneruskan setiap task.
+        verify(scheduler).schedule(a);
+        verify(scheduler).schedule(b);
+    }
+
     // --- buildUpdateLog (static, murni) ---
 
     @Test
