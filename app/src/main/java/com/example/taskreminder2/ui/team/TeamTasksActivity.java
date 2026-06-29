@@ -3,6 +3,8 @@ package com.example.taskreminder2.ui.team;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,8 +20,10 @@ import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.model.Team;
 import com.example.taskreminder2.data.model.TeamTask;
 import com.example.taskreminder2.ui.BaseToolbarActivity;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 /**
  * Daftar tugas Team Mode — realtime via snapshot listener. FAB & klik item
@@ -45,6 +49,10 @@ public class TeamTasksActivity extends BaseToolbarActivity
 
     private TeamTaskViewModel viewModel;
     private Team team;
+    private TextInputEditText editSearch;
+    private ChipGroup chipGroup;
+    private TextView textEmpty;
+    private boolean filtering;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +67,9 @@ public class TeamTasksActivity extends BaseToolbarActivity
                 getIntent().getStringExtra(EXTRA_OWNER_ID));
         setTitle(team.name);
 
-        TextView textEmpty = findViewById(R.id.textEmpty);
+        textEmpty = findViewById(R.id.textEmpty);
+        editSearch = findViewById(R.id.editSearch);
+        chipGroup = findViewById(R.id.chipGroupFilter);
         RecyclerView recycler = findViewById(R.id.recyclerTeamTasks);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         TeamTaskAdapter adapter = new TeamTaskAdapter(this);
@@ -70,8 +80,9 @@ public class TeamTasksActivity extends BaseToolbarActivity
 
         viewModel.getTasks().observe(this, tasks -> {
             adapter.submitList(tasks);
-            textEmpty.setVisibility(tasks == null || tasks.isEmpty()
-                    ? View.VISIBLE : View.GONE);
+            boolean empty = tasks == null || tasks.isEmpty();
+            textEmpty.setText(filtering ? R.string.empty_filtered : R.string.empty_team_tasks);
+            textEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
         });
         viewModel.getMessage().observe(this, msg -> {
             if (msg != null) {
@@ -79,8 +90,40 @@ public class TeamTasksActivity extends BaseToolbarActivity
             }
         });
 
+        editSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                applyQuery();
+            }
+        });
+        chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> applyQuery());
+
         FloatingActionButton fab = findViewById(R.id.fabAdd);
         fab.setOnClickListener(v -> TeamTaskFormActivity.start(this, team.id));
+    }
+
+    /** Susun kriteria dari search + chip terpilih, filter di memori (Fitur-03). */
+    private void applyQuery() {
+        String keyword = editSearch.getText() == null ? "" : editSearch.getText().toString().trim();
+        TeamTaskViewModel.Filter filter;
+        int checked = chipGroup.getCheckedChipId();
+        if (checked == R.id.chipPriority) {
+            filter = TeamTaskViewModel.Filter.PRIORITY_HIGH;
+        } else if (checked == R.id.chipOverdue) {
+            filter = TeamTaskViewModel.Filter.OVERDUE;
+        } else {
+            filter = TeamTaskViewModel.Filter.ALL;
+        }
+        filtering = !keyword.isEmpty() || filter != TeamTaskViewModel.Filter.ALL;
+        viewModel.setQuery(filter, keyword);
     }
 
     @Override
