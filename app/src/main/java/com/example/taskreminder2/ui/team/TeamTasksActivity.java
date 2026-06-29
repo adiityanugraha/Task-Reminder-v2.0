@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.taskreminder2.R;
 import com.example.taskreminder2.data.model.Team;
 import com.example.taskreminder2.data.model.TeamTask;
+import com.example.taskreminder2.data.model.TeamTaskChange;
+import com.example.taskreminder2.notification.NotificationHelper;
 import com.example.taskreminder2.ui.BaseToolbarActivity;
 import com.example.taskreminder2.ui.SearchFilterBinder;
 import com.google.android.material.chip.ChipGroup;
@@ -86,6 +88,13 @@ public class TeamTasksActivity extends BaseToolbarActivity
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
             }
         });
+        viewModel.getChangeNotifications().observe(this, changes -> {
+            if (changes == null || changes.isEmpty()) {
+                return;
+            }
+            NotificationHelper.showTeamChange(this, team.name, summarizeChanges(changes));
+            viewModel.consumeChangeNotifications();
+        });
 
         SearchFilterBinder.bind(editSearch, chipGroup, query -> {
             filtering = query.isFiltering();
@@ -94,6 +103,29 @@ public class TeamTasksActivity extends BaseToolbarActivity
 
         FloatingActionButton fab = findViewById(R.id.fabAdd);
         fab.setOnClickListener(v -> TeamTaskFormActivity.start(this, team.id));
+    }
+
+    /** Ringkas daftar perubahan jadi teks notifikasi (1 detail, >1 jumlah). */
+    private String summarizeChanges(java.util.List<TeamTaskChange> changes) {
+        if (changes.size() == 1) {
+            TeamTaskChange c = changes.get(0);
+            String title = (c.title == null || c.title.trim().isEmpty())
+                    ? getString(R.string.notif_reminder_fallback_title) : c.title;
+            return getString(changeTypeLabel(c.type)) + ": " + title;
+        }
+        return getString(R.string.notif_team_multi, changes.size());
+    }
+
+    private static int changeTypeLabel(TeamTaskChange.Type type) {
+        switch (type) {
+            case ADDED:
+                return R.string.notif_team_added;
+            case REMOVED:
+                return R.string.notif_team_removed;
+            case MODIFIED:
+            default:
+                return R.string.notif_team_modified;
+        }
     }
 
     @Override

@@ -27,6 +27,13 @@ import com.example.taskreminder2.ui.taskdetail.TaskDetailActivity;
 public final class NotificationHelper {
 
     public static final String CHANNEL_REMINDERS = "personal_reminders";
+    /** Channel terpisah untuk perubahan dari anggota lain (Team Mode, Day 27). */
+    public static final String CHANNEL_TEAM = "team_changes";
+
+    /** Satu notifikasi perubahan team (id tetap → notif terbaru menggantikan
+     *  yang lama, tidak menumpuk). Angka besar agar tak bentrok dengan id
+     *  notifikasi Personal yang memakai taskId (kecil). */
+    private static final int NOTIF_ID_TEAM_CHANGE = 0x7EA3;
 
     /** Buat channel sekali (idempoten). Aman dipanggil sebelum tiap notifikasi. */
     public static void ensureChannel(Context context) {
@@ -79,6 +86,44 @@ public final class NotificationHelper {
                         .setContentIntent(contentIntent);
 
         NotificationManagerCompat.from(context).notify(taskId, builder.build());
+    }
+
+    /** Buat channel Team sekali (idempoten). */
+    public static void ensureTeamChannel(Context context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return;
+        }
+        NotificationManager nm = context.getSystemService(NotificationManager.class);
+        if (nm == null || nm.getNotificationChannel(CHANNEL_TEAM) != null) {
+            return;
+        }
+        NotificationChannel channel = new NotificationChannel(
+                CHANNEL_TEAM,
+                context.getString(R.string.channel_team_name),
+                NotificationManager.IMPORTANCE_DEFAULT);
+        channel.setDescription(context.getString(R.string.channel_team_desc));
+        nm.createNotificationChannel(channel);
+    }
+
+    /**
+     * Notifikasi "ada perubahan dari anggota lain" (Fitur-07 Team, app hidup).
+     * {@code title} biasanya nama team, {@code text} ringkasan perubahan.
+     * Diabaikan diam-diam bila izin POST_NOTIFICATIONS belum diberikan.
+     */
+    @SuppressLint("MissingPermission") // dijaga manual oleh hasPostPermission()
+    public static void showTeamChange(Context context, String title, String text) {
+        ensureTeamChannel(context);
+        if (!hasPostPermission(context)) {
+            return;
+        }
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(context, CHANNEL_TEAM)
+                        .setSmallIcon(android.R.drawable.stat_notify_sync)
+                        .setContentTitle(title)
+                        .setContentText(text)
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        .setAutoCancel(true);
+        NotificationManagerCompat.from(context).notify(NOTIF_ID_TEAM_CHANGE, builder.build());
     }
 
     private static boolean hasPostPermission(Context context) {

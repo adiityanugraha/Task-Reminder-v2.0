@@ -111,4 +111,12 @@
     <string name="exact_alarm_dialog_message">Agar pengingat deadline muncul tepat waktu, izinkan aplikasi menjadwalkan alarm presisi di Setelan. Tanpa izin ini pengingat tetap muncul, tapi bisa tertunda.</string>
     <string name="action_open_settings">Buka Setelan</string>
     <string name="action_later">Nanti</string>
+
+    <!-- Notifikasi Team Mode (Fitur-07, Day 27) -->
+    <string name="channel_team_name">Perubahan Team</string>
+    <string name="channel_team_desc">Pemberitahuan saat anggota lain mengubah tugas team.</string>
+    <string name="notif_team_added">Tugas baru</string>
+    <string name="notif_team_modified">Tugas diperbarui</string>
+    <string name="notif_team_removed">Tugas dihapus</string>
+    <string name="notif_team_multi">%1$d perubahan tugas dari anggota lain.</string>
 </resources>

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.taskreminder2.data.local.entity.Task;
 import com.example.taskreminder2.data.model.TeamTask;
+import com.example.taskreminder2.data.model.TeamTaskChange;
 import com.example.taskreminder2.data.repository.TeamTaskRepository;
 import com.example.taskreminder2.ui.TaskQuery;
 import com.example.taskreminder2.util.OverdueChecker;
@@ -26,12 +27,14 @@ public class TeamTaskViewModel extends ViewModel {
     private final TeamTaskRepository repo;
     private final String teamId;
     private final ListenerRegistration registration;
+    private final ListenerRegistration changesRegistration;
 
     private final MutableLiveData<List<TeamTask>> rawTasks = new MutableLiveData<>();
     private final MutableLiveData<TaskQuery> query =
             new MutableLiveData<>(new TaskQuery(TaskQuery.Filter.ALL, null));
     private final MediatorLiveData<List<TeamTask>> filteredTasks = new MediatorLiveData<>();
     private final MutableLiveData<String> message = new MutableLiveData<>();
+    private final MutableLiveData<List<TeamTaskChange>> changeNotifications = new MutableLiveData<>();
 
     public TeamTaskViewModel(String teamId) {
         this(new TeamTaskRepository(), teamId);
@@ -41,6 +44,7 @@ public class TeamTaskViewModel extends ViewModel {
         this.repo = repo;
         this.teamId = teamId;
         this.registration = repo.listenTasks(teamId, rawTasks::setValue);
+        this.changesRegistration = repo.listenOtherChanges(teamId, changeNotifications::setValue);
         filteredTasks.addSource(rawTasks, t -> recompute());
         filteredTasks.addSource(query, q -> recompute());
     }
@@ -51,6 +55,19 @@ public class TeamTaskViewModel extends ViewModel {
 
     public LiveData<String> getMessage() {
         return message;
+    }
+
+    /**
+     * Perubahan dari anggota lain (Fitur-07, Day 27). Activity meng-observe lalu
+     * memunculkan notifikasi, kemudian memanggil {@link #consumeChangeNotifications()}
+     * agar tidak muncul ulang saat konfigurasi berubah (mis. rotasi).
+     */
+    public LiveData<List<TeamTaskChange>> getChangeNotifications() {
+        return changeNotifications;
+    }
+
+    public void consumeChangeNotifications() {
+        changeNotifications.setValue(new ArrayList<>());
     }
 
     public void setQuery(TaskQuery query) {
@@ -102,6 +119,9 @@ public class TeamTaskViewModel extends ViewModel {
         super.onCleared();
         if (registration != null) {
             registration.remove();
+        }
+        if (changesRegistration != null) {
+            changesRegistration.remove();
         }
     }
 }

@@ -3,11 +3,13 @@ package com.example.taskreminder2.data.repository;
 import androidx.annotation.Nullable;
 
 import com.example.taskreminder2.data.model.TeamTask;
+import com.example.taskreminder2.data.model.TeamTaskChange;
 import com.example.taskreminder2.data.model.TeamTaskLog;
 import com.example.taskreminder2.util.LogType;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -45,6 +47,11 @@ public class TeamTaskRepository {
 
     public interface LogsCallback {
         void onResult(List<TeamTaskLog> logs);
+    }
+
+    /** Perubahan tugas oleh anggota LAIN (untuk notifikasi Fitur-07, Day 27). */
+    public interface OtherChangesCallback {
+        void onChanges(List<TeamTaskChange> changes);
     }
 
     private final FirebaseFirestore db;
@@ -161,6 +168,64 @@ public class TeamTaskRepository {
                     }
                     callback.onResult(tasks);
                 });
+    }
+
+    /**
+     * Listener khusus notifikasi (Day 27): laporkan perubahan tugas oleh anggota
+     * LAIN selagi app hidup. Tiga penyaring:
+     * <ol>
+     *   <li>Snapshot pertama (muatan awal) dilewati — kalau tidak, semua tugas
+     *       lama akan tampil sebagai "baru" tiap kali layar dibuka.</li>
+     *   <li>{@code metadata.hasPendingWrites()} → tulisan sendiri yang belum
+     *       dikonfirmasi server, jangan notif.</li>
+     *   <li>{@code updatedBy == currentUid} → setelah dikonfirmasi server pun,
+     *       perubahan milik sendiri tetap disaring.</li>
+     * </ol>
+     * Listener terpisah dari {@link #listenTasks} agar tanggung jawabnya jelas;
+     * keduanya berbagi data cache Firestore yang sama (murah).
+     */
+    public ListenerRegistration listenOtherChanges(String teamId, OtherChangesCallback callback) {
+        final boolean[] firstSnapshot = {true};
+        return tasksRef(teamId).addSnapshotListener((snap, err) -> {
+            if (err != null || snap == null) {
+                return;
+            }
+            if (firstSnapshot[0]) {
+                firstSnapshot[0] = false;
+                return;
+            }
+            String uid = currentUid();
+            List<TeamTaskChange> changes = new ArrayList<>();
+            for (DocumentChange dc : snap.getDocumentChanges()) {
+                DocumentSnapshot doc = dc.getDocument();
+                if (doc.getMetadata().hasPendingWrites()) {
+                    continue;
+                }
+                TeamTask task = doc.toObject(TeamTask.class);
+                if (task == null) {
+                    continue;
+                }
+                if (uid != null && uid.equals(task.updatedBy)) {
+                    continue;
+                }
+                changes.add(new TeamTaskChange(task.title, mapChangeType(dc.getType())));
+            }
+            if (!changes.isEmpty()) {
+                callback.onChanges(changes);
+            }
+        });
+    }
+
+    private static TeamTaskChange.Type mapChangeType(DocumentChange.Type type) {
+        switch (type) {
+            case ADDED:
+                return TeamTaskChange.Type.ADDED;
+            case REMOVED:
+                return TeamTaskChange.Type.REMOVED;
+            case MODIFIED:
+            default:
+                return TeamTaskChange.Type.MODIFIED;
+        }
     }
 
     /** Baca sekali (non-realtime) — dipakai verifikasi Day 18. */
