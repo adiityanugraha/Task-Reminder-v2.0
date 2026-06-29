@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +16,7 @@ import com.example.taskreminder2.data.model.Member;
 import com.example.taskreminder2.data.model.Team;
 import com.example.taskreminder2.ui.BaseToolbarActivity;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 /**
  * Kelola Team (Fitur-04, Day 17). Owner bisa mengeluarkan member & menghapus
@@ -46,7 +46,7 @@ public class ManageTeamActivity extends BaseToolbarActivity implements MemberAda
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_team);
-        setupToolbar(R.string.title_manage_team, true);
+        setupHeader(R.string.title_manage_team);
 
         viewModel = new ViewModelProvider(this).get(ManageTeamViewModel.class);
 
@@ -92,7 +92,7 @@ public class ManageTeamActivity extends BaseToolbarActivity implements MemberAda
 
     @Override
     public void onRemove(Member member) {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.confirm_remove_member_title)
                 .setMessage(getString(R.string.confirm_remove_member_message, member.displayName))
                 .setPositiveButton(R.string.action_remove_member,
@@ -102,7 +102,7 @@ public class ManageTeamActivity extends BaseToolbarActivity implements MemberAda
     }
 
     private void confirmDeleteTeam() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.confirm_delete_team_title)
                 .setMessage(R.string.confirm_delete_team_message)
                 .setPositiveButton(R.string.button_delete_team, (d, w) -> viewModel.deleteTeam(teamId))

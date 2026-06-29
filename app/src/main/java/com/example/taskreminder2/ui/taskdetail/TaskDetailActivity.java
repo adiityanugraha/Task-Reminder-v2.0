@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -23,6 +22,7 @@ import com.example.taskreminder2.ui.TaskViewBinder;
 import com.example.taskreminder2.ui.tasklist.TaskFormActivity;
 import com.example.taskreminder2.util.TaskStatus;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -180,7 +180,7 @@ public class TaskDetailActivity extends BaseToolbarActivity {
         if (currentTask == null) {
             return;
         }
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.confirm_delete_title)
                 .setMessage(R.string.confirm_delete_message)
                 .setPositiveButton(R.string.action_delete, (d, w) -> {

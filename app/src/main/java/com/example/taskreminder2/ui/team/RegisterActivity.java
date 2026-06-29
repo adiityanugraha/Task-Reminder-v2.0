@@ -30,7 +30,7 @@ public class RegisterActivity extends BaseToolbarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        setupToolbar(R.string.title_register, true);
+        setupHeader(0);
 
         viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 

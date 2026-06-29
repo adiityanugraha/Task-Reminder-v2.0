@@ -93,6 +93,11 @@
     <string name="error_password_short">Password minimal 6 karakter</string>
     <string name="error_name_required">Nama tampilan wajib diisi</string>
     <string name="team_logged_in_as">Masuk sebagai: %1$s</string>
+    <!-- Team Mode redesign (Emerald Sand) -->
+    <string name="team_mode_title">Team Mode</string>
+    <string name="login_subtitle">Masuk untuk berkolaborasi mengelola tugas bersama timmu.</string>
+    <string name="register_subtitle">Buat akun untuk mulai berkolaborasi dengan timmu.</string>
+    <string name="team_online">Online</string>
 
     <!-- Team Mode: buat/join team (Fitur-04, Day 16) -->
     <string name="button_create_team">Buat Team</string>

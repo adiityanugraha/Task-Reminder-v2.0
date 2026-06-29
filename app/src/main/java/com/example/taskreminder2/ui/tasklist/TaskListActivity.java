@@ -14,7 +14,6 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,6 +26,7 @@ import com.example.taskreminder2.ui.SearchFilterBinder;
 import com.example.taskreminder2.ui.taskdetail.TaskDetailActivity;
 import com.example.taskreminder2.ui.team.LoginActivity;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
@@ -178,7 +178,7 @@ public class TaskListActivity extends BaseToolbarActivity
 
     @Override
     public void onTaskLongClick(@NonNull Task task) {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.confirm_delete_title)
                 .setMessage(R.string.confirm_delete_message)
                 .setPositiveButton(R.string.action_delete, (d, w) -> viewModel.delete(task))

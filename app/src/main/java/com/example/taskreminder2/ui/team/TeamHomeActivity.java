@@ -3,13 +3,11 @@ package com.example.taskreminder2.ui.team;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -42,7 +40,8 @@ public class TeamHomeActivity extends BaseToolbarActivity implements TeamAdapter
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_team_home);
-        setupToolbar(R.string.title_team_home, true);
+        setupHeader(R.string.title_team_home);
+        setupLogoutAction();
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
         teamViewModel = new ViewModelProvider(this).get(TeamViewModel.class);
@@ -126,21 +125,18 @@ public class TeamHomeActivity extends BaseToolbarActivity implements TeamAdapter
         TeamTasksActivity.start(this, team);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_team_home, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_logout) {
+    /** Tombol logout di slot aksi header (desain Emerald Sand). */
+    private void setupLogoutAction() {
+        View action = findViewById(R.id.btnHeaderAction);
+        ImageView icon = findViewById(R.id.imageHeaderAction);
+        icon.setImageResource(R.drawable.ic_logout);
+        icon.setVisibility(View.VISIBLE);
+        action.setClickable(true);
+        action.setOnClickListener(v -> {
             // Logout → hentikan polling Team (tak ada user yang dipantau).
             TeamSyncWorker.cancel(this);
             authViewModel.logout();
             finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        });
     }
 }

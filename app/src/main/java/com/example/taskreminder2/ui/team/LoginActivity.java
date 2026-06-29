@@ -41,7 +41,7 @@ public class LoginActivity extends BaseToolbarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        setupToolbar(R.string.title_login, true);
+        setupHeader(0);
 
         viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
