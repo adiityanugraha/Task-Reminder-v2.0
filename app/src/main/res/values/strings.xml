@@ -5,6 +5,7 @@
     <string name="empty_tasks">Belum ada tugas.\nTekan + untuk menambah.</string>
     <string name="empty_filtered">Tidak ada tugas yang cocok.</string>
     <string name="cd_add_task">Tambah tugas</string>
+    <string name="button_add_task_full">Tambah Tugas</string>
 
     <!-- Beranda (redesign Emerald Sand) -->
     <string name="header_tasks_title">Tugas</string>

@@ -25,6 +25,7 @@ import com.example.taskreminder2.ui.BaseToolbarActivity;
 import com.example.taskreminder2.ui.SearchFilterBinder;
 import com.example.taskreminder2.ui.taskdetail.TaskDetailActivity;
 import com.example.taskreminder2.ui.team.LoginActivity;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
@@ -68,6 +69,11 @@ public class TaskListActivity extends BaseToolbarActivity
         TaskAdapter adapter = new TaskAdapter(this);
         recycler.setAdapter(adapter);
 
+        View emptyState = findViewById(R.id.emptyState);
+        MaterialButton btnEmptyAdd = findViewById(R.id.btnEmptyAdd);
+        btnEmptyAdd.setOnClickListener(v ->
+                startActivity(new Intent(this, TaskFormActivity.class)));
+
         viewModel = new ViewModelProvider(
                 this, new TaskListViewModelFactory(getApplication()))
                 .get(TaskListViewModel.class);
@@ -76,7 +82,9 @@ public class TaskListActivity extends BaseToolbarActivity
             adapter.submitList(tasks);
             boolean empty = tasks == null || tasks.isEmpty();
             textEmpty.setText(filtering ? R.string.empty_filtered : R.string.empty_tasks);
-            textEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
+            emptyState.setVisibility(empty ? View.VISIBLE : View.GONE);
+            // Tombol tambah tak relevan saat hasil filter kosong.
+            btnEmptyAdd.setVisibility(filtering ? View.GONE : View.VISIBLE);
         });
 
         SearchFilterBinder.bind(editSearch, chipGroup, query -> {

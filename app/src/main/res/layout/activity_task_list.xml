@@ -173,16 +173,54 @@
             android:paddingTop="4dp"
             android:paddingBottom="96dp" />
 
-        <TextView
-            android:id="@+id/textEmpty"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/emptyState"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="@string/empty_tasks"
-            android:textColor="@color/es_text_secondary"
-            android:textSize="15sp"
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:paddingHorizontal="40dp"
+            android:visibility="gone">
+
+            <FrameLayout
+                android:layout_width="108dp"
+                android:layout_height="108dp"
+                android:background="@drawable/bg_icon_box"
+                android:backgroundTint="@color/es_surface"
+                android:elevation="2dp">
+
+                <ImageView
+                    android:layout_width="54dp"
+                    android:layout_height="54dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_task_alt"
+                    app:tint="@color/es_primary" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/textEmpty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:lineSpacingMultiplier="1.4"
+                android:text="@string/empty_tasks"
+                android:textColor="@color/es_text_secondary"
+                android:textSize="15sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEmptyAdd"
+                style="@style/Widget.ES.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/button_add_task_full"
+                app:icon="@drawable/ic_add"
+                app:iconGravity="textStart"
+                app:iconTint="@color/es_on_primary" />
+        </LinearLayout>
     </FrameLayout>
 
     <!-- ===== Bottom navigation ===== -->

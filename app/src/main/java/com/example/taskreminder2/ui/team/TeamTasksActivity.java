@@ -3,13 +3,12 @@ package com.example.taskreminder2.ui.team;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -57,14 +56,15 @@ public class TeamTasksActivity extends BaseToolbarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_team_tasks);
-        setupToolbar(0, true);
+        setupHeader(0);
 
         team = new Team(
                 getIntent().getStringExtra(EXTRA_TEAM_ID),
                 getIntent().getStringExtra(EXTRA_TEAM_NAME),
                 getIntent().getStringExtra(EXTRA_TEAM_CODE),
                 getIntent().getStringExtra(EXTRA_OWNER_ID));
-        setTitle(team.name);
+        ((TextView) findViewById(R.id.textHeaderTitle)).setText(team.name);
+        setupHeaderMenu();
 
         textEmpty = findViewById(R.id.textEmpty);
         TextInputEditText editSearch = findViewById(R.id.editSearch);
@@ -143,18 +143,25 @@ public class TeamTasksActivity extends BaseToolbarActivity
                 .show();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_team_tasks, menu);
-        return true;
+    /** Tombol aksi (titik tiga) di header → menu "Kelola Team". */
+    private void setupHeaderMenu() {
+        View action = findViewById(R.id.btnHeaderAction);
+        ImageView icon = findViewById(R.id.imageHeaderAction);
+        icon.setVisibility(View.VISIBLE);
+        action.setClickable(true);
+        action.setOnClickListener(this::showMenu);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_manage_team) {
-            ManageTeamActivity.start(this, team);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    private void showMenu(View anchor) {
+        PopupMenu menu = new PopupMenu(this, anchor);
+        menu.getMenuInflater().inflate(R.menu.menu_team_tasks, menu.getMenu());
+        menu.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_manage_team) {
+                ManageTeamActivity.start(this, team);
+                return true;
+            }
+            return false;
+        });
+        menu.show();
     }
 }

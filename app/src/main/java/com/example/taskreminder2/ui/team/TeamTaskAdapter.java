@@ -3,6 +3,7 @@ package com.example.taskreminder2.ui.team;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -76,6 +77,8 @@ public class TeamTaskAdapter extends ListAdapter<TeamTask, TeamTaskAdapter.TaskV
         private final TextView textDeadline;
         private final TextView textStatus;
         private final TextView textPriorityBadge;
+        private final View iconBox;
+        private final ImageView imageIcon;
         private final int defaultDeadlineColor;
 
         TaskViewHolder(@NonNull View itemView) {
@@ -85,6 +88,8 @@ public class TeamTaskAdapter extends ListAdapter<TeamTask, TeamTaskAdapter.TaskV
             textDeadline = itemView.findViewById(R.id.textDeadline);
             textStatus = itemView.findViewById(R.id.textStatus);
             textPriorityBadge = itemView.findViewById(R.id.textPriorityBadge);
+            iconBox = itemView.findViewById(R.id.iconBox);
+            imageIcon = itemView.findViewById(R.id.imageIcon);
             defaultDeadlineColor = textDeadline.getCurrentTextColor();
 
             itemView.setOnClickListener(v -> {
@@ -105,9 +110,11 @@ public class TeamTaskAdapter extends ListAdapter<TeamTask, TeamTaskAdapter.TaskV
 
         void bind(TeamTask task) {
             textTitle.setText(task.title);
+            TaskViewBinder.bindTitleState(textTitle, task.status);
             TaskViewBinder.bindDeadline(textDeadline, task.deadline, task.status, defaultDeadlineColor);
             textStatus.setText(TaskStatus.label(task.status));
             TaskViewBinder.bindPriority(card, textPriorityBadge, task.priority);
+            TaskViewBinder.bindIconBox(iconBox, imageIcon, task.deadline, task.status, task.priority);
         }
     }
 }

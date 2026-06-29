@@ -7,39 +7,20 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.taskreminder2.R;
-import com.google.android.material.appbar.MaterialToolbar;
 
 /**
- * Kelas dasar untuk semua Activity berbasis {@link MaterialToolbar}.
- * Menghapus boilerplate yang sebelumnya diulang di tiap layar: memasang
- * toolbar sebagai action bar, judul, tombol up, dan navigasi up.
+ * Kelas dasar layar dengan header kustom "Emerald Sand" ({@code include_header}).
+ * Menghapus boilerplate back/judul yang sebelumnya diulang di tiap layar.
  */
 public abstract class BaseToolbarActivity extends AppCompatActivity {
 
     /**
-     * Memasang toolbar (id {@code R.id.toolbar}) sebagai action bar.
-     * Panggil SETELAH {@code setContentView}.
+     * Wiring header kustom {@code include_header}: tombol back → {@code finish()},
+     * dan judul tengah. Panggil SETELAH {@code setContentView}. Aman bila layar
+     * belum memakai header baru (findViewById null diabaikan).
      *
-     * @param titleRes resource judul, atau 0 untuk membiarkan judul diatur
-     *                 belakangan / memakai label Activity
-     * @param showUp   true untuk menampilkan tombol kembali (up)
-     */
-    protected void setupToolbar(@StringRes int titleRes, boolean showUp) {
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            if (titleRes != 0) {
-                getSupportActionBar().setTitle(titleRes);
-            }
-            getSupportActionBar().setDisplayHomeAsUpEnabled(showUp);
-        }
-    }
-
-    /**
-     * Wiring header kustom {@code include_header} (desain Emerald Sand): tombol
-     * back → {@code finish()}, dan judul tengah. Panggil SETELAH
-     * {@code setContentView}. Aman bila layar belum memakai header baru
-     * (findViewById null diabaikan).
+     * @param titleRes resource judul, atau 0 untuk membiarkan judul kosong /
+     *                 diatur belakangan (mis. nama team yang dinamis)
      */
     protected void setupHeader(@StringRes int titleRes) {
         View back = findViewById(R.id.btnBack);
